@@ -46,6 +46,12 @@ const statusLabels: Record<StatusType, string> = {
   development: 'En Desarrollo',
   maintenance: 'En Mantenimiento',
   staging: 'Staging / Testing',
+  pendiente: 'Pendiente',
+  pagado: 'Pagado',
+  vencido: 'Vencido',
+  propuesta: 'Propuesta',
+  activo: 'Activo',
+  suspendido: 'Suspendido',
 };
 
 export const StatusBadge = ({ status, className }: { status: StatusType; className?: string }) => (
