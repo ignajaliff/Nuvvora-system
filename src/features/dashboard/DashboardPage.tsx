@@ -73,7 +73,7 @@ const DashboardPage = () => {
   const tareasItems = tareas?.filter(t => t.estado === 'todo' || t.estado === 'in_progress') ?? [];
 
   return (
-    <motion.div className="space-y-8" initial="hidden" animate="show" variants={contentFade}>
+    <motion.div className="space-y-8" initial="hidden" animate="show" variants={stagger}>
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
