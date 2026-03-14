@@ -1,8 +1,9 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Users, CheckSquare, StickyNote, Receipt } from 'lucide-react';
+import { LayoutDashboard, Users, CheckSquare, StickyNote, Receipt, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import type { LucideIcon } from 'lucide-react';
 
 const navItems: { to: string; label: string; icon: LucideIcon }[] = [
@@ -16,6 +17,7 @@ const navItems: { to: string; label: string; icon: LucideIcon }[] = [
 export const AppNavbar = () => {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
+  const { signOut } = useAuth();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -73,8 +75,14 @@ export const AppNavbar = () => {
         </nav>
       </div>
 
-      {/* Spacer to balance the logo */}
-      <div className="w-[72px] shrink-0" />
+      {/* Logout button */}
+      <button
+        onClick={signOut}
+        className="shrink-0 p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+        title="Cerrar sesión"
+      >
+        <LogOut size={18} strokeWidth={2} />
+      </button>
     </header>
   );
 };

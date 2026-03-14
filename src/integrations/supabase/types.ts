@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string
+          id_auth: string
+          nombre: string
+        }
+        Insert: {
+          id?: string
+          id_auth: string
+          nombre?: string
+        }
+        Update: {
+          id?: string
+          id_auth?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
       proyectos: {
         Row: {
           cliente_desde: string
