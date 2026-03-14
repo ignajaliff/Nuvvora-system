@@ -7,13 +7,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 import { Users, CheckSquare, Eye, EyeOff } from 'lucide-react';
 
-const contentFade = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration: 0.6, delay: 0.9, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-};
+// No custom fade — use shared fadeUp + stagger from animations.ts
 
 const DashboardPage = () => {
   const navigate = useNavigate();
