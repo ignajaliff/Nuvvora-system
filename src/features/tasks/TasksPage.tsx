@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Zap } from 'lucide-react';
 import { VoiceRecorder } from './components/VoiceRecorder';
 
 /* ── Draggable task row ── */
@@ -44,26 +44,14 @@ const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void })
     id: task.id,
     data: { task },
   });
-
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     opacity: isDragging ? 0.4 : 1,
   };
-
   return (
-    <tr
-      ref={setNodeRef}
-      style={style}
-      className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer"
-      onClick={onClick}
-    >
+    <tr ref={setNodeRef} style={style} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer" onClick={onClick}>
       <td className="py-3 px-2 w-8">
-        <button
-          {...listeners}
-          {...attributes}
-          onClick={e => e.stopPropagation()}
-          className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-1"
-        >
+        <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-1">
           <GripVertical className="w-4 h-4" />
         </button>
       </td>
@@ -81,16 +69,13 @@ const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void })
 const DroppableColumn = ({ status, children }: { status: string; children: React.ReactNode }) => {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   return (
-    <div
-      ref={setNodeRef}
-      className={`transition-all duration-200 rounded-xl ${isOver ? 'ring-2 ring-primary/30 bg-primary/[0.02]' : ''}`}
-    >
+    <div ref={setNodeRef} className={`transition-all duration-200 rounded-xl ${isOver ? 'ring-2 ring-primary/30 bg-primary/[0.02]' : ''}`}>
       {children}
     </div>
   );
 };
 
-/* ── Overlay row (shown while dragging) ── */
+/* ── Overlay row ── */
 const OverlayRow = ({ task }: { task: any }) => (
   <div className="glass-card p-3 rounded-lg shadow-lg flex items-center gap-3 relative z-10">
     <GripVertical className="w-4 h-4 text-muted-foreground/40" />
@@ -111,26 +96,21 @@ const TasksPage = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false);
   const [activeTask, setActiveTask] = useState<any>(null);
   const [form, setForm] = useState({
-    titulo: '',
-    descripcion: '',
-    id_proyecto: '',
-    entrega_programada: '',
-    estado: 'todo',
+    titulo: '', descripcion: '', id_proyecto: '', entrega_programada: '', estado: 'todo',
+  });
+  const [quickForm, setQuickForm] = useState({
+    titulo: '', descripcion: '', id_proyecto: '',
   });
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['tareas'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tareas')
-        .select('*, proyectos(nombre_empresa)')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('tareas').select('*, proyectos(nombre_empresa)').order('created_at', { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -146,21 +126,19 @@ const TasksPage = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (payload: { titulo: string; descripcion: string; id_proyecto: string; entrega_programada: string; estado: string }) => {
       const { error } = await supabase.from('tareas').insert({
-        titulo: form.titulo,
-        descripcion: form.descripcion || null,
-        id_proyecto: form.id_proyecto,
-        entrega_programada: form.entrega_programada || null,
-        estado: form.estado,
+        titulo: payload.titulo,
+        descripcion: payload.descripcion || null,
+        id_proyecto: payload.id_proyecto,
+        entrega_programada: payload.entrega_programada || null,
+        estado: payload.estado,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tareas'] });
       toast.success('Tarea creada correctamente');
-      setOpen(false);
-      setForm({ titulo: '', descripcion: '', id_proyecto: '', entrega_programada: '', estado: 'todo' });
     },
     onError: () => toast.error('Error al crear la tarea'),
   });
@@ -170,26 +148,29 @@ const TasksPage = () => {
       const { error } = await supabase.from('tareas').update({ estado }).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tareas'] });
-      toast.success('Estado actualizado');
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['tareas'] }); toast.success('Estado actualizado'); },
     onError: () => toast.error('Error al actualizar estado'),
   });
 
+  /* ── Handlers ── */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.titulo || !form.id_proyecto) {
-      toast.error('Título y proyecto son obligatorios');
-      return;
-    }
-    createMutation.mutate();
+    if (!form.titulo || !form.id_proyecto) { toast.error('Título y proyecto son obligatorios'); return; }
+    createMutation.mutate(form, {
+      onSuccess: () => { setOpen(false); setForm({ titulo: '', descripcion: '', id_proyecto: '', entrega_programada: '', estado: 'todo' }); },
+    });
   };
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveTask(event.active.data.current?.task);
+  const handleQuickSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickForm.titulo || !quickForm.id_proyecto) { toast.error('Graba un audio primero'); return; }
+    createMutation.mutate(
+      { ...quickForm, estado: 'todo', entrega_programada: getDefaultDeliveryDate() },
+      { onSuccess: () => { setQuickOpen(false); setQuickForm({ titulo: '', descripcion: '', id_proyecto: '' }); } },
+    );
   };
 
+  const handleDragStart = (event: DragStartEvent) => { setActiveTask(event.active.data.current?.task); };
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveTask(null);
     const { active, over } = event;
@@ -202,15 +183,14 @@ const TasksPage = () => {
   };
 
   const selectedEmpresaName = proyectos?.find(p => p.id === form.id_proyecto)?.nombre_empresa ?? '';
+  const quickEmpresaName = proyectos?.find(p => p.id === quickForm.id_proyecto)?.nombre_empresa ?? '';
 
   const handleVoiceResult = (result: { titulo: string; descripcion: string }) => {
-    setForm(f => ({
-      ...f,
-      titulo: result.titulo,
-      descripcion: result.descripcion,
-      estado: 'todo',
-      entrega_programada: getDefaultDeliveryDate(),
-    }));
+    setForm(f => ({ ...f, titulo: result.titulo, descripcion: result.descripcion, estado: 'todo', entrega_programada: getDefaultDeliveryDate() }));
+  };
+
+  const handleQuickVoiceResult = (result: { titulo: string; descripcion: string }) => {
+    setQuickForm(f => ({ ...f, titulo: result.titulo, descripcion: result.descripcion }));
   };
 
   const groupedTasks = {
@@ -226,12 +206,21 @@ const TasksPage = () => {
           <h1 className="text-2xl font-semibold tracking-tight">Tareas</h1>
           <p className="text-muted-foreground text-ui mt-1">Organiza y gestiona tu trabajo — arrastra tareas entre estados</p>
         </div>
-        <button
-          onClick={() => setOpen(true)}
-          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-ui font-medium hover:opacity-90 transition-opacity duration-150"
-        >
-          Nueva tarea
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setQuickOpen(true)}
+            className="px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-ui font-medium hover:opacity-90 transition-opacity duration-150 flex items-center gap-1.5"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Tarea rápida
+          </button>
+          <button
+            onClick={() => setOpen(true)}
+            className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-ui font-medium hover:opacity-90 transition-opacity duration-150"
+          >
+            Nueva tarea
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -251,18 +240,10 @@ const TasksPage = () => {
                       <table className="w-full">
                         <tbody>
                           {groupedTasks[status].length === 0 ? (
-                            <tr>
-                              <td className="py-6 px-4 text-center text-sm text-muted-foreground" colSpan={5}>
-                                Sin tareas — arrastra una aquí
-                              </td>
-                            </tr>
+                            <tr><td className="py-6 px-4 text-center text-sm text-muted-foreground" colSpan={5}>Sin tareas — arrastra una aquí</td></tr>
                           ) : (
                             groupedTasks[status].map(task => (
-                              <DraggableTaskRow
-                                key={task.id}
-                                task={task}
-                                onClick={() => navigate(`/tasks/${task.id}`)}
-                              />
+                              <DraggableTaskRow key={task.id} task={task} onClick={() => navigate(`/tasks/${task.id}`)} />
                             ))
                           )}
                         </tbody>
@@ -277,22 +258,16 @@ const TasksPage = () => {
         </DndContext>
       )}
 
-      {/* Dialog Nueva Tarea */}
+      {/* Dialog Nueva Tarea (completo) */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Nueva tarea</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Nueva tarea</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
             <div className="space-y-2">
               <Label htmlFor="proyecto">Proyecto *</Label>
               <Select value={form.id_proyecto} onValueChange={v => setForm(f => ({ ...f, id_proyecto: v }))}>
                 <SelectTrigger><SelectValue placeholder="Selecciona un proyecto" /></SelectTrigger>
-                <SelectContent>
-                  {proyectos?.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.nombre_empresa}</SelectItem>
-                  ))}
-                </SelectContent>
+                <SelectContent>{proyectos?.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre_empresa}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -302,13 +277,9 @@ const TasksPage = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="descripcion">Descripción</Label>
-                <VoiceRecorder
-                  empresa={selectedEmpresaName}
-                  disabled={!form.id_proyecto}
-                  onResult={handleVoiceResult}
-                />
+                <VoiceRecorder empresa={selectedEmpresaName} disabled={!form.id_proyecto} onResult={handleVoiceResult} />
               </div>
-              <Textarea id="descripcion" value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} placeholder="Describe la tarea o usa el micrófono para dictarla..." rows={3} />
+              <Textarea id="descripcion" value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} placeholder="Describe la tarea o usa el micrófono..." rows={3} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -330,6 +301,73 @@ const TasksPage = () => {
             <div className="flex justify-end gap-2 pt-2">
               <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
               <button type="submit" disabled={createMutation.isPending} className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+                {createMutation.isPending ? 'Creando...' : 'Crear tarea'}
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Tarea Rápida */}
+      <Dialog open={quickOpen} onOpenChange={setQuickOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-warning" />
+              Tarea rápida
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleQuickSubmit} className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label>Proyecto *</Label>
+              <Select value={quickForm.id_proyecto} onValueChange={v => setQuickForm(f => ({ ...f, id_proyecto: v }))}>
+                <SelectTrigger><SelectValue placeholder="Selecciona un proyecto" /></SelectTrigger>
+                <SelectContent>{proyectos?.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre_empresa}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Descripción por voz</Label>
+              {!quickForm.descripcion ? (
+                <div className="flex items-center justify-center py-6 rounded-lg border border-dashed border-border bg-muted/30">
+                  <div className="flex flex-col items-center gap-3">
+                    <VoiceRecorder empresa={quickEmpresaName} disabled={!quickForm.id_proyecto} onResult={handleQuickVoiceResult} />
+                    <span className="text-xs text-muted-foreground">
+                      {quickForm.id_proyecto ? 'Toca el micrófono para dictar' : 'Selecciona un proyecto primero'}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-lg bg-muted/30 border border-border p-3">
+                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Título generado</span>
+                    <p className="text-sm text-foreground mt-1">{quickForm.titulo}</p>
+                  </div>
+                  <Textarea
+                    value={quickForm.descripcion}
+                    onChange={e => setQuickForm(f => ({ ...f, descripcion: e.target.value }))}
+                    placeholder="Descripción..."
+                    rows={4}
+                  />
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setQuickForm(f => ({ ...f, titulo: '', descripcion: '' }))}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Volver a grabar
+                    </button>
+                    <VoiceRecorder empresa={quickEmpresaName} disabled={!quickForm.id_proyecto} onResult={handleQuickVoiceResult} />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button type="button" onClick={() => { setQuickOpen(false); setQuickForm({ titulo: '', descripcion: '', id_proyecto: '' }); }} className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
+              <button
+                type="submit"
+                disabled={createMutation.isPending || !quickForm.titulo}
+                className="px-4 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
                 {createMutation.isPending ? 'Creando...' : 'Crear tarea'}
               </button>
             </div>
