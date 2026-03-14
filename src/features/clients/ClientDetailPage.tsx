@@ -193,72 +193,56 @@ function GeneralTab({ client }: { client: any }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-      {/* Organization Details - takes more space */}
-      <div className="lg:col-span-3 glass-card p-6 space-y-5">
-        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <Info size={16} className="text-muted-foreground" />
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5">
+      <div className="lg:col-span-3 glass-card p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+          <Info size={14} className="text-muted-foreground" />
           Detalles de la organización
         </h2>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6">
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Empresa</p>
-            <p className="text-sm text-foreground mt-1">{client.nombre_empresa}</p>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Empresa</p>
+            <p className="text-xs sm:text-sm text-foreground mt-1">{client.nombre_empresa}</p>
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Contacto</p>
-            <p className="text-sm text-foreground mt-1">{client.nombre_cliente || '—'}</p>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Contacto</p>
+            <p className="text-xs sm:text-sm text-foreground mt-1">{client.nombre_cliente || '—'}</p>
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Cliente desde</p>
-            <p className="text-sm text-foreground mt-1">{formatClientSince(client.cliente_desde)}</p>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Cliente desde</p>
+            <p className="text-xs sm:text-sm text-foreground mt-1">{formatClientSince(client.cliente_desde)}</p>
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Estado</p>
-            <div className="mt-1">
-              <StatusBadge status={client.estado as any} />
-            </div>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Estado</p>
+            <div className="mt-1"><StatusBadge status={client.estado as any} /></div>
           </div>
-          {/* Progreso del proyecto */}
           <div className="col-span-2">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Progreso del proyecto</p>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min={0}
-                max={100}
-                step={5}
-                value={progreso}
-                onChange={e => handleProgresoChange(Number(e.target.value))}
-                className="flex-1 h-2 rounded-full appearance-none cursor-pointer accent-primary bg-foreground/5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md"
-              />
-              <span className="text-sm font-mono font-medium text-foreground min-w-[3ch] text-right">
-                {progreso}%
-              </span>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Progreso del proyecto</p>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <input type="range" min={0} max={100} step={5} value={progreso} onChange={e => handleProgresoChange(Number(e.target.value))} className="flex-1 h-2 rounded-full appearance-none cursor-pointer accent-primary bg-foreground/5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md" />
+              <span className="text-xs sm:text-sm font-mono font-medium text-foreground min-w-[3ch] text-right">{progreso}%</span>
             </div>
             {saving && <p className="text-[10px] text-muted-foreground mt-1">Guardando...</p>}
           </div>
         </div>
       </div>
-
-      {/* Tech info */}
-      <div className="lg:col-span-2 glass-card p-6 space-y-5">
-        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <KeyRound size={16} className="text-muted-foreground" />
+      <div className="lg:col-span-2 glass-card p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+          <KeyRound size={14} className="text-muted-foreground" />
           Información técnica
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Stack</p>
-            <p className="text-sm text-foreground font-mono mt-1">{client.stack || '—'}</p>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Stack</p>
+            <p className="text-xs sm:text-sm text-foreground font-mono mt-1">{client.stack || '—'}</p>
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Versión</p>
-            <p className="text-sm text-foreground font-mono mt-1">v{client.version || '1.0.0'}</p>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Versión</p>
+            <p className="text-xs sm:text-sm text-foreground font-mono mt-1">v{client.version || '1.0.0'}</p>
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Creado</p>
-            <p className="text-sm text-foreground mt-1">
+            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Creado</p>
+            <p className="text-xs sm:text-sm text-foreground mt-1">
               {new Date(client.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
