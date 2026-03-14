@@ -372,8 +372,280 @@ function ContratoTab({ projectId }: { projectId: string }) {
 /* ── Payments Tab ── */
 function PaymentsTab({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
 
   const { data: facturas, isLoading } = useQuery({
+    queryKey: ['facturacion', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('facturacion')
+        .select('*')
+        .eq('id_proyecto', projectId)
+        .order('fecha_emision', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: contrato } = useQuery({
+    queryKey: ['contrato', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contratos_proyecto')
+        .select('*')
+        .eq('id_proyecto', projectId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, newStatus }: { id: string; newStatus: string }) => {
+      const updateData: any = { estado: newStatus };
+      if (newStatus === 'pagado') updateData.fecha_pago = new Date().toISOString().split('T')[0];
+      const { error } = await supabase.from('facturacion').update(updateData).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['facturacion', projectId] });
+      toast({ title: 'Estado actualizado' });
+    },
+  });
+
+  if (isLoading) return <SkeletonCard />;
+
+  const feeInicialItems = facturas?.filter(f => f.concepto.startsWith('Fee Inicial')) ?? [];
+  const abonoItems = facturas?.filter(f => f.concepto.startsWith('Abono Mensual')) ?? [];
+
+  const feeInicialTotal = contrato ? Number(contrato.fee_inicial) : 0;
+  const feeInicialPagado = feeInicialItems.reduce((s, f) => s + Number(f.monto), 0);
+  const feeInicialRestante = feeInicialTotal - feeInicialPagado;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+          <CreditCard size={16} className="text-muted-foreground" />
+          Historial de pagos
+        </h2>
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity inline-flex items-center gap-1.5"
+        >
+          <Plus size={16} />
+          Nuevo registro
+        </button>
+      </div>
+
+      {showForm && (
+        <PaymentInvoiceForm
+          projectId={projectId}
+          contrato={contrato}
+          feeInicialRestante={feeInicialRestante}
+          onClose={() => setShowForm(false)}
+        />
+      )}
+
+      {/* Fee Inicial section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Fee Inicial</h3>
+          {contrato && (
+            <div className="flex items-center gap-3 text-xs font-mono">
+              <span className="text-muted-foreground">Total: <span className="text-foreground">${feeInicialTotal.toLocaleString()}</span></span>
+              <span className="text-muted-foreground">Pagado: <span className="text-foreground">${feeInicialPagado.toLocaleString()}</span></span>
+              <span className={cn('font-semibold', feeInicialRestante > 0 ? 'text-warning' : 'text-success')}>
+                Restante: ${Math.max(0, feeInicialRestante).toLocaleString()}
+              </span>
+            </div>
+          )}
+        </div>
+        {feeInicialItems.length === 0 ? (
+          <div className="glass-card p-6 text-center">
+            <p className="text-sm text-muted-foreground">No hay pagos de Fee Inicial registrados.</p>
+          </div>
+        ) : (
+          <div className="grid gap-2">
+            {feeInicialItems.map(f => (
+              <div key={f.id} className="glass-card p-4 border-l-4 border-l-primary/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{f.concepto}</p>
+                    <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                      Emitido: {f.fecha_emision} {f.fecha_pago ? `• Pagado: ${f.fecha_pago}` : ''}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-sm font-semibold text-foreground">${Number(f.monto).toLocaleString()}</span>
+                    <StatusBadge status={f.estado as any} />
+                    {(f.estado === 'pendiente' || f.estado === 'vencido') && (
+                      <button
+                        onClick={() => updateStatus.mutate({ id: f.id, newStatus: 'pagado' })}
+                        className="text-[11px] px-2 py-0.5 rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
+                      >
+                        Pagado
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Abono Mensual section */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Abono Mensual</h3>
+        {abonoItems.length === 0 ? (
+          <div className="glass-card p-6 text-center">
+            <p className="text-sm text-muted-foreground">No hay pagos de Abono Mensual registrados.</p>
+          </div>
+        ) : (
+          <div className="grid gap-2">
+            {abonoItems.map(f => (
+              <div key={f.id} className="glass-card p-4 border-l-4 border-l-accent/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{f.concepto}</p>
+                    <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                      Emitido: {f.fecha_emision} {f.fecha_pago ? `• Pagado: ${f.fecha_pago}` : ''}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-sm font-semibold text-foreground">${Number(f.monto).toLocaleString()}</span>
+                    <StatusBadge status={f.estado as any} />
+                    {(f.estado === 'pendiente' || f.estado === 'vencido') && (
+                      <button
+                        onClick={() => updateStatus.mutate({ id: f.id, newStatus: 'pagado' })}
+                        className="text-[11px] px-2 py-0.5 rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
+                      >
+                        Pagado
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Payment Invoice Form (within client) ── */
+function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }: {
+  projectId: string;
+  contrato: any;
+  feeInicialRestante: number;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const now = new Date();
+
+  const [conceptoType, setConceptoType] = useState<'abono' | 'fee'>('abono');
+  const [monto, setMonto] = useState(contrato ? String(Number(contrato.abono_mensual)) : '');
+  const [fechaEmision, setFechaEmision] = useState(now.toISOString().split('T')[0]);
+
+  const handleConceptChange = (type: 'abono' | 'fee') => {
+    setConceptoType(type);
+    if (type === 'abono' && contrato) {
+      setMonto(String(Number(contrato.abono_mensual)));
+    } else if (type === 'fee' && contrato) {
+      setMonto(String(Math.max(0, feeInicialRestante)));
+    } else {
+      setMonto('');
+    }
+  };
+
+  const conceptoText = conceptoType === 'abono'
+    ? `Abono Mensual - ${months[now.getMonth()]} ${now.getFullYear()}`
+    : 'Fee Inicial';
+
+  const createInvoice = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('facturacion').insert({
+        id_proyecto: projectId,
+        monto: parseFloat(monto),
+        concepto: conceptoText,
+        fecha_emision: fechaEmision,
+        estado: 'pendiente',
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['facturacion', projectId] });
+      toast({ title: 'Registro creado' });
+      onClose();
+    },
+    onError: (err: any) => {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const isValid = monto && parseFloat(monto) > 0;
+
+  return (
+    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-foreground">Nuevo registro de pago</h3>
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <X size={16} />
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Concepto</label>
+          <select
+            value={conceptoType}
+            onChange={e => handleConceptChange(e.target.value as 'abono' | 'fee')}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+          >
+            <option value="abono">Abono Mensual</option>
+            <option value="fee">Fee Inicial</option>
+          </select>
+          <p className="text-xs text-muted-foreground mt-1 font-mono">{conceptoText}</p>
+        </div>
+        <div>
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Monto</label>
+          <input
+            type="number"
+            value={monto}
+            onChange={e => setMonto(e.target.value)}
+            placeholder="0.00"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+          {conceptoType === 'fee' && contrato && (
+            <p className="text-xs mt-1 font-mono text-warning">
+              Restante después de este pago: ${Math.max(0, feeInicialRestante - (parseFloat(monto) || 0)).toLocaleString()}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fecha emisión</label>
+          <input
+            type="date"
+            value={fechaEmision}
+            onChange={e => setFechaEmision(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <button
+          onClick={() => createInvoice.mutate()}
+          disabled={!isValid || createInvoice.isPending}
+          className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
+          {createInvoice.isPending ? 'Creando...' : 'Crear registro'}
+        </button>
+      </div>
+    </motion.div>
+  );
+}
     queryKey: ['facturacion', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
