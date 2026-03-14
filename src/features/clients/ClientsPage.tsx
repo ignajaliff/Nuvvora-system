@@ -173,6 +173,8 @@ const ClientsPage = () => {
       cliente_desde: client.cliente_desde,
       stack: client.stack || '',
       version: client.version || '1.0.0',
+      link1: client.link1 || '',
+      link2: client.link2 || '',
     });
     setEditLogoPreview(client.logo_empresa ? getLogoUrl(client.logo_empresa) : null);
     setEditLogoFile(null);
