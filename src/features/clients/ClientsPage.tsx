@@ -171,18 +171,13 @@ const ClientsPage = () => {
 
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">Cliente desde:</span>
-                    <span className="text-foreground font-medium">{formatClientSince(client.cliente_desde)}</span>
+                    <span className="text-foreground">{formatClientSince(client.cliente_desde)}</span>
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Stack:</span>
-                    <span className="text-foreground font-mono text-[12px]">{client.stack || '—'}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Versión:</span>
-                    <span className="text-foreground font-mono text-[12px]">v{client.version || '1.0.0'}</span>
-                  </div>
+                <div className="flex items-center justify-between text-[12px] mt-auto pt-2 border-t border-border/50">
+                  <span className="text-muted-foreground font-mono">{client.stack || '—'}</span>
+                  <span className="text-muted-foreground font-mono">v{client.version || '1.0.0'}</span>
                 </div>
               </div>
             </motion.div>
