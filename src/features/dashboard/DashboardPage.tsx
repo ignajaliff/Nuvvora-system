@@ -7,34 +7,13 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 import { Users, CheckSquare, Eye, EyeOff } from 'lucide-react';
 
-const easeOut = [0.22, 1, 0.36, 1] as const;
-
-const heroStagger = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.18, delayChildren: 1.2 },
-  },
-};
-
-const cardReveal = {
-  hidden: { opacity: 0, y: 30, scale: 0.96, filter: 'blur(6px)' },
+const contentFade = {
+  hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
-    transition: { duration: 0.7, ease: easeOut },
+    transition: { duration: 0.6, delay: 0.9, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
   },
 };
-
-const sectionReveal = (delay: number) => ({
-  hidden: { opacity: 0, y: 24 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: easeOut, delay },
-  },
-});
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -101,21 +80,17 @@ const DashboardPage = () => {
   const tareasItems = tareas?.filter(t => t.estado === 'todo' || t.estado === 'in_progress') ?? [];
 
   return (
-    <div className="space-y-8">
-      {/* Header with early fade */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <motion.div className="space-y-8" initial="hidden" animate="show" variants={contentFade}>
+      {/* Header */}
+      <div>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground text-ui mt-1">Resumen de tu actividad</p>
-      </motion.div>
+      </div>
 
-      {/* Top stat cards - staggered dramatic reveal */}
-      <motion.div className="grid grid-cols-1 sm:grid-cols-3 gap-4" initial="hidden" animate="show" variants={heroStagger}>
+      {/* Top stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Clientes activos */}
-        <motion.div variants={cardReveal} className="glass-card p-5">
+        <div className="glass-card p-5">
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <span className="text-label text-muted-foreground">Clientes activos</span>
@@ -125,10 +100,10 @@ const DashboardPage = () => {
             </div>
             <div className="text-3xl font-semibold tracking-tight text-foreground">{clientesActivos}</div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Tareas pendientes */}
-        <motion.div variants={cardReveal} className="glass-card p-5">
+        <div className="glass-card p-5">
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <span className="text-label text-muted-foreground">Tareas pendientes</span>
@@ -138,10 +113,10 @@ const DashboardPage = () => {
             </div>
             <div className="text-3xl font-semibold tracking-tight text-foreground">{tareasPendientes}</div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Ingresos del mes */}
-        <motion.div variants={cardReveal} className="glass-card p-5">
+        <div className="glass-card p-5">
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <span className="text-label text-muted-foreground">Ingresos del mes</span>
@@ -185,11 +160,11 @@ const DashboardPage = () => {
               </AnimatePresence>
             </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Proyectos en Desarrollo */}
-      <motion.div initial="hidden" animate="show" variants={sectionReveal(2.0)}>
+      <div>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-sm font-medium text-foreground">Proyectos en Desarrollo</h2>
           <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-warning/15 text-warning text-[11px] font-semibold">
@@ -197,16 +172,10 @@ const DashboardPage = () => {
           </span>
         </div>
         {proyectosEnDesarrollo.length > 0 ? (
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            initial="hidden"
-            animate="show"
-            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 2.2 } } }}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {proyectosEnDesarrollo.map(project => (
-              <motion.div
+              <div
                 key={project.id}
-                variants={cardReveal}
                 className="glass-card p-5 cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => navigate(`/clients/${project.id}`)}
               >
@@ -231,18 +200,18 @@ const DashboardPage = () => {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         ) : (
           <div className="glass-card p-6 text-center">
             <p className="text-muted-foreground text-sm">No hay proyectos en desarrollo.</p>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Tareas Pendientes */}
-      <motion.div initial="hidden" animate="show" variants={sectionReveal(2.6)}>
+      <div>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-sm font-medium text-foreground">Tareas Pendientes</h2>
           <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-primary/15 text-primary text-[11px] font-semibold">
@@ -289,8 +258,8 @@ const DashboardPage = () => {
             <p className="text-muted-foreground text-sm">No hay tareas pendientes. 🎉</p>
           </div>
         )}
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 };
 
