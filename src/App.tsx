@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { PageTransition } from "@/components/shared/PageTransition";
 import DashboardPage from "@/features/dashboard/DashboardPage";
 import ClientsPage from "@/features/clients/ClientsPage";
+import ClientDetailPage from "@/features/clients/ClientDetailPage";
 import ProjectsPage from "@/features/projects/ProjectsPage";
 import TasksPage from "@/features/tasks/TasksPage";
 import NotesPage from "@/features/notes/NotesPage";
@@ -31,6 +32,7 @@ const AppRoutes = () => {
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/clients" element={<ClientsPage />} />
+          <Route path="/clients/:id" element={<ClientDetailPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/notes" element={<NotesPage />} />
