@@ -287,7 +287,7 @@ const ClientsPage = () => {
           {clients.map(client => (
             <motion.div key={client.id} variants={fadeUp} className="glass-card p-6 cursor-pointer group relative">
               {/* 3-dot menu */}
-              <div className="absolute top-4 right-4 z-20">
+              <div className="absolute top-4 right-4 z-20" onClick={e => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
