@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -14,6 +14,10 @@ const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 
 const BillingPage = () => {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const now = new Date();
+  const [viewMonth, setViewMonth] = useState(now.getMonth());
+  const [viewYear, setViewYear] = useState(now.getFullYear());
+  const [isGlobal, setIsGlobal] = useState(false);
 
   const { data: facturas, isLoading } = useQuery({
     queryKey: ['facturacion'],
@@ -27,10 +31,27 @@ const BillingPage = () => {
     },
   });
 
-  const totalPagado = facturas?.filter(f => f.estado === 'pagado').reduce((s, f) => s + Number(f.monto), 0) ?? 0;
-  const totalPendiente = facturas?.filter(f => f.estado === 'pendiente' || f.estado === 'vencido').reduce((s, f) => s + Number(f.monto), 0) ?? 0;
+  const goMonth = (dir: -1 | 1) => {
+    let m = viewMonth + dir;
+    let y = viewYear;
+    if (m < 0) { m = 11; y--; }
+    if (m > 11) { m = 0; y++; }
+    setViewMonth(m);
+    setViewYear(y);
+  };
 
-  // Group by month (from fecha_emision)
+  // Filter for current month view
+  const monthFacturas = facturas?.filter(f => {
+    const d = new Date(f.fecha_emision + 'T00:00:00');
+    return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
+  });
+
+  // Stats based on current view
+  const viewItems = isGlobal ? facturas : monthFacturas;
+  const totalPagado = viewItems?.filter(f => f.estado === 'pagado').reduce((s, f) => s + Number(f.monto), 0) ?? 0;
+  const totalPendiente = viewItems?.filter(f => f.estado === 'pendiente' || f.estado === 'vencido').reduce((s, f) => s + Number(f.monto), 0) ?? 0;
+
+  // Group by month for global view
   const groupedByMonth: Record<string, typeof facturas> = {};
   facturas?.forEach(f => {
     const d = new Date(f.fecha_emision + 'T00:00:00');
@@ -57,6 +78,37 @@ const BillingPage = () => {
 
       {showForm && <NewInvoiceForm onClose={() => setShowForm(false)} />}
 
+      {/* Month navigator */}
+      <div className="flex items-center justify-center gap-4">
+        {!isGlobal && (
+          <>
+            <button onClick={() => goMonth(-1)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+              <ChevronLeft size={20} />
+            </button>
+            <div className="text-center min-w-[200px]">
+              <h2 className="text-xl font-semibold tracking-tight text-foreground">{MONTHS[viewMonth]}</h2>
+              <p className="text-xs text-muted-foreground font-mono">{viewYear}</p>
+            </div>
+            <button onClick={() => goMonth(1)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+              <ChevronRight size={20} />
+            </button>
+          </>
+        )}
+        {isGlobal && <div className="text-center"><h2 className="text-xl font-semibold tracking-tight text-foreground">Vista global</h2></div>}
+        <button
+          onClick={() => setIsGlobal(g => !g)}
+          className={cn(
+            "ml-2 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors border",
+            isGlobal
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-background text-muted-foreground border-border hover:text-foreground"
+          )}
+        >
+          <Globe size={14} />
+          Ver global
+        </button>
+      </div>
+
       <motion.div className="grid grid-cols-3 gap-4" initial="hidden" animate="show" variants={stagger}>
         <motion.div variants={fadeUp} className="glass-card p-5">
           <div className="relative z-10">
@@ -73,57 +125,77 @@ const BillingPage = () => {
         <motion.div variants={fadeUp} className="glass-card p-5">
           <div className="relative z-10">
             <span className="text-label text-muted-foreground">Total facturas</span>
-            <div className="text-2xl font-semibold tracking-tight mt-1 font-mono-tabular">{facturas?.length ?? 0}</div>
+            <div className="text-2xl font-semibold tracking-tight mt-1 font-mono-tabular">{viewItems?.length ?? 0}</div>
           </div>
         </motion.div>
       </motion.div>
 
       {isLoading ? (
         <SkeletonTable rows={5} cols={5} />
-      ) : (!facturas || facturas.length === 0) ? (
-        <motion.div initial="hidden" animate="show" variants={fadeUp} className="glass-card p-12 text-center">
-          <p className="text-sm text-muted-foreground">No hay facturas registradas aún.</p>
-        </motion.div>
-      ) : (
-        <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
-          {Object.entries(groupedByMonth).map(([monthLabel, items]) => {
-            const monthTotal = items!.reduce((s, f) => s + Number(f.monto), 0);
-            return (
-              <motion.div key={monthLabel} variants={fadeUp} className="space-y-2">
-                <div className="flex items-center justify-between px-1">
-                  <h3 className="text-sm font-semibold text-foreground">{monthLabel}</h3>
-                  <span className="text-xs font-mono text-muted-foreground">${monthTotal.toLocaleString()}</span>
-                </div>
-                <div className="glass-card overflow-hidden">
-                  <div className="relative z-10">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-foreground/5">
-                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Cliente</th>
-                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Concepto</th>
-                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Monto</th>
-                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Estado</th>
-                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Emisión</th>
-                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items!.map(inv => (
-                          <InvoiceRow key={inv.id} invoice={inv} />
-                        ))}
-                      </tbody>
-                    </table>
+      ) : isGlobal ? (
+        /* Global view grouped by month */
+        (!facturas || facturas.length === 0) ? (
+          <motion.div initial="hidden" animate="show" variants={fadeUp} className="glass-card p-12 text-center">
+            <p className="text-sm text-muted-foreground">No hay facturas registradas aún.</p>
+          </motion.div>
+        ) : (
+          <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
+            {Object.entries(groupedByMonth).map(([monthLabel, items]) => {
+              const monthTotal = items!.reduce((s, f) => s + Number(f.monto), 0);
+              return (
+                <motion.div key={monthLabel} variants={fadeUp} className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
+                    <h3 className="text-sm font-semibold text-foreground">{monthLabel}</h3>
+                    <span className="text-xs font-mono text-muted-foreground">${monthTotal.toLocaleString()}</span>
                   </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                  <InvoiceTable items={items!} />
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )
+      ) : (
+        /* Single month view */
+        (!monthFacturas || monthFacturas.length === 0) ? (
+          <motion.div initial="hidden" animate="show" variants={fadeUp} className="glass-card p-12 text-center">
+            <p className="text-sm text-muted-foreground">No hay facturas en {MONTHS[viewMonth]} {viewYear}.</p>
+          </motion.div>
+        ) : (
+          <motion.div initial="hidden" animate="show" variants={fadeUp}>
+            <InvoiceTable items={monthFacturas} />
+          </motion.div>
+        )
       )}
     </div>
   );
 };
 
+/* ── Reusable Invoice Table ── */
+function InvoiceTable({ items }: { items: any[] }) {
+  return (
+    <div className="glass-card overflow-hidden">
+      <div className="relative z-10">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-foreground/5">
+              <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Cliente</th>
+              <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Concepto</th>
+              <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Monto</th>
+              <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Estado</th>
+              <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Emisión</th>
+              <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(inv => (
+              <InvoiceRow key={inv.id} invoice={inv} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 /* ── Invoice Row with actions ── */
 function InvoiceRow({ invoice }: { invoice: any }) {
   const queryClient = useQueryClient();
