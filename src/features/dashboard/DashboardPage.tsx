@@ -157,7 +157,7 @@ const DashboardPage = () => {
       </motion.div>
 
       {/* Proyectos en Desarrollo */}
-      <div>
+      <motion.div variants={fadeUp}>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-sm font-medium text-foreground">Proyectos en Desarrollo</h2>
           <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-warning/15 text-warning text-[11px] font-semibold">
