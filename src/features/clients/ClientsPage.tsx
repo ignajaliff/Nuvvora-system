@@ -2,13 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
+import { fadeUp } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonTable } from '@/components/shared/Skeleton';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-};
 
 const ClientsPage = () => {
   const { data: clients, isLoading } = useQuery({ queryKey: ['clients'], queryFn: api.getClients, ...queryConfig });

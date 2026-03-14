@@ -2,18 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
+import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 import { Users, FolderKanban, CheckSquare, Receipt, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-};
-
-const stagger = {
-  show: { transition: { staggerChildren: 0.08 } },
-};
 
 const StatCard = ({ label, value, icon: Icon, trend, trendValue }: {
   label: string;
@@ -79,28 +71,16 @@ const DashboardPage = () => {
         <p className="text-muted-foreground text-ui mt-1">Resumen de tu actividad</p>
       </div>
 
-      {/* Stats */}
-      <motion.div
-        className="grid grid-cols-4 gap-4"
-        initial="hidden"
-        animate="show"
-        variants={stagger}
-      >
+      <motion.div className="grid grid-cols-4 gap-4" initial="hidden" animate="show" variants={stagger}>
         <StatCard label="Clientes activos" value={String(activeClients)} icon={Users} trend="up" trendValue="+2 este mes" />
         <StatCard label="Proyectos activos" value={String(activeProjects)} icon={FolderKanban} trend="up" trendValue="3 en progreso" />
         <StatCard label="Tareas pendientes" value={String(pendingTasks)} icon={CheckSquare} trend="down" trendValue="2 completadas hoy" />
         <StatCard label="Ingresos" value={`$${totalRevenue.toLocaleString()}`} icon={Receipt} trend="up" trendValue="+15% vs Q anterior" />
       </motion.div>
 
-      {/* Recent projects */}
       <div>
         <h2 className="text-sm font-medium mb-3 text-foreground">Proyectos recientes</h2>
-        <motion.div
-          className="grid grid-cols-3 gap-4"
-          initial="hidden"
-          animate="show"
-          variants={stagger}
-        >
+        <motion.div className="grid grid-cols-3 gap-4" initial="hidden" animate="show" variants={stagger}>
           {projects?.filter(p => p.status === 'in_progress').map(project => (
             <motion.div key={project.id} variants={fadeUp} className="glass-card p-5 cursor-pointer">
               <div className="relative z-10">
@@ -124,7 +104,6 @@ const DashboardPage = () => {
         </motion.div>
       </div>
 
-      {/* Recent tasks */}
       <motion.div initial="hidden" animate="show" variants={fadeUp}>
         <h2 className="text-sm font-medium mb-3 text-foreground">Tareas recientes</h2>
         <div className="glass-card overflow-hidden">

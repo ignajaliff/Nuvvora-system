@@ -2,17 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
+import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-};
-
-const stagger = {
-  show: { transition: { staggerChildren: 0.08 } },
-};
 
 const ProjectsPage = () => {
   const { data: projects, isLoading } = useQuery({ queryKey: ['projects'], queryFn: api.getProjects, ...queryConfig });

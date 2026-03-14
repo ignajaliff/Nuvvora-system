@@ -2,17 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
+import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonTable } from '@/components/shared/Skeleton';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-};
-
-const stagger = {
-  show: { transition: { staggerChildren: 0.08 } },
-};
 
 const BillingPage = () => {
   const { data: invoices, isLoading } = useQuery({ queryKey: ['invoices'], queryFn: api.getInvoices, ...queryConfig });
@@ -32,7 +24,6 @@ const BillingPage = () => {
         </button>
       </div>
 
-      {/* Summary cards */}
       <motion.div className="grid grid-cols-3 gap-4" initial="hidden" animate="show" variants={stagger}>
         <motion.div variants={fadeUp} className="glass-card p-5">
           <div className="relative z-10">
