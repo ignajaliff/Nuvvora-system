@@ -285,7 +285,7 @@ const ClientsPage = () => {
       ) : clients && clients.length > 0 ? (
         <motion.div initial="hidden" animate="show" variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {clients.map(client => (
-            <motion.div key={client.id} variants={fadeUp} className="glass-card p-6 cursor-pointer group relative">
+            <motion.div key={client.id} variants={fadeUp} className="glass-card p-6 cursor-pointer group relative hover:shadow-md transition-shadow" onClick={() => navigate(`/clients/${client.id}`)}>
               {/* 3-dot menu */}
               <div className="absolute top-4 right-4 z-20" onClick={e => e.stopPropagation()}>
                 <DropdownMenu>
