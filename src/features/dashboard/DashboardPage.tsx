@@ -3,11 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 import { Users, CheckSquare, Eye, EyeOff } from 'lucide-react';
-
-// No custom fade — use shared fadeUp + stagger from animations.ts
 
 const DashboardPage = () => {
   const navigate = useNavigate();
