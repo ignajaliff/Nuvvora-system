@@ -23,7 +23,7 @@ export const BackgroundGlow = ({ children, className }: { children?: React.React
 
       {/* Subtle slate wash */}
       <div
-        className="absolute top-[50%] right-[30%] h-[400px] w-[400px] rounded-full opacity-30 blur-[100px]"
+        className="absolute top-[50%] right-[30%] h-[400px] w-[400px] rounded-full opacity-45 blur-[100px]"
         style={{ background: '#E2E8F0' }}
       />
 

@@ -37,7 +37,7 @@ export const AppNavbar = () => {
   };
 
   return (
-    <header className="h-14 flex items-center px-8 bg-background">
+    <header className="h-14 flex items-center px-8">
       {/* Logo */}
       <span className="text-base mr-8" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
         N<span style={{ fontStyle: 'italic', fontWeight: 500 }}>uvvora</span>
