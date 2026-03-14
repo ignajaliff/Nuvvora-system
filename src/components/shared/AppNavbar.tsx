@@ -75,8 +75,14 @@ export const AppNavbar = () => {
         </nav>
       </div>
 
-      {/* Spacer to balance the logo */}
-      <div className="w-[72px] shrink-0" />
+      {/* Logout button */}
+      <button
+        onClick={signOut}
+        className="shrink-0 p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+        title="Cerrar sesión"
+      >
+        <LogOut size={18} strokeWidth={2} />
+      </button>
     </header>
   );
 };
