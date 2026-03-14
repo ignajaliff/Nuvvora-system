@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
+import { fadeUp } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonTable } from '@/components/shared/Skeleton';
 
@@ -22,30 +24,32 @@ const ClientsPage = () => {
       {isLoading ? (
         <SkeletonTable rows={5} cols={4} />
       ) : (
-        <div className="rounded-xl shadow-card overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border-subtle">
-                <th className="text-label text-muted-foreground text-left py-2.5 px-4 font-semibold">Nombre</th>
-                <th className="text-label text-muted-foreground text-left py-2.5 px-4 font-semibold">Empresa</th>
-                <th className="text-label text-muted-foreground text-left py-2.5 px-4 font-semibold">Email</th>
-                <th className="text-label text-muted-foreground text-left py-2.5 px-4 font-semibold">Estado</th>
-                <th className="text-label text-muted-foreground text-left py-2.5 px-4 font-semibold">Desde</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clients?.map(client => (
-                <tr key={client.id} className="border-b border-border-subtle last:border-0 hover:bg-muted/50 transition-colors duration-150 cursor-pointer">
-                  <td className="py-2.5 px-4 text-ui font-medium text-foreground">{client.name}</td>
-                  <td className="py-2.5 px-4 text-ui text-muted-foreground">{client.company}</td>
-                  <td className="py-2.5 px-4 text-ui text-muted-foreground">{client.email}</td>
-                  <td className="py-2.5 px-4"><StatusBadge status={client.status} /></td>
-                  <td className="py-2.5 px-4 font-mono-tabular text-[12px] text-muted-foreground">{client.createdAt}</td>
+        <motion.div initial="hidden" animate="show" variants={fadeUp} className="glass-card overflow-hidden">
+          <div className="relative z-10">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-foreground/5">
+                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Nombre</th>
+                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Empresa</th>
+                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Email</th>
+                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Estado</th>
+                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Desde</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {clients?.map(client => (
+                  <tr key={client.id} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer">
+                    <td className="py-3 px-4 text-ui font-medium text-foreground">{client.name}</td>
+                    <td className="py-3 px-4 text-ui text-muted-foreground">{client.company}</td>
+                    <td className="py-3 px-4 text-ui text-muted-foreground">{client.email}</td>
+                    <td className="py-3 px-4"><StatusBadge status={client.status} /></td>
+                    <td className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground">{client.createdAt}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
       )}
     </div>
   );

@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
+import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 
@@ -24,28 +26,30 @@ const ProjectsPage = () => {
           {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <motion.div className="grid grid-cols-2 gap-4" initial="hidden" animate="show" variants={stagger}>
           {projects?.map(project => (
-            <div key={project.id} className="rounded-xl p-5 shadow-card hover:shadow-card-hover hover:bg-muted/30 transition-all duration-150 cursor-pointer">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-medium text-foreground">{project.name}</span>
-                <StatusBadge status={project.status} />
+            <motion.div key={project.id} variants={fadeUp} className="glass-card p-5 cursor-pointer">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-foreground">{project.name}</span>
+                  <StatusBadge status={project.status} />
+                </div>
+                <span className="text-[12px] text-muted-foreground">{project.clientName}</span>
+                <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>Progreso</span>
+                  <span className="font-mono-tabular">{project.progress}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-foreground/5 overflow-hidden mt-1.5">
+                  <div className="h-full rounded-full bg-foreground/80 transition-all duration-500" style={{ width: `${project.progress}%` }} />
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>Vence: <span className="font-mono-tabular">{project.dueDate}</span></span>
+                  <span className="font-mono-tabular">${project.budget.toLocaleString()}</span>
+                </div>
               </div>
-              <span className="text-[12px] text-muted-foreground">{project.clientName}</span>
-              <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>Progreso</span>
-                <span className="font-mono-tabular">{project.progress}%</span>
-              </div>
-              <div className="h-1 rounded-full bg-muted overflow-hidden mt-1">
-                <div className="h-full rounded-full bg-foreground transition-all duration-500" style={{ width: `${project.progress}%` }} />
-              </div>
-              <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>Vence: <span className="font-mono-tabular">{project.dueDate}</span></span>
-                <span className="font-mono-tabular">${project.budget.toLocaleString()}</span>
-              </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
+import { fadeUp, stagger } from '@/lib/animations';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 
 const NotesPage = () => {
@@ -23,20 +25,22 @@ const NotesPage = () => {
           {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <motion.div className="grid grid-cols-2 gap-4" initial="hidden" animate="show" variants={stagger}>
           {notes?.map(note => (
-            <div key={note.id} className="rounded-xl p-5 shadow-card hover:shadow-card-hover hover:bg-muted/30 transition-all duration-150 cursor-pointer">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-foreground">{note.title}</span>
-                {note.linkedTo && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground">{note.linkedTo}</span>
-                )}
+            <motion.div key={note.id} variants={fadeUp} className="glass-card p-5 cursor-pointer">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-foreground">{note.title}</span>
+                  {note.linkedTo && (
+                    <span className="text-[11px] px-2 py-0.5 rounded-md bg-foreground/5 text-muted-foreground">{note.linkedTo}</span>
+                  )}
+                </div>
+                <p className="text-ui text-muted-foreground line-clamp-2">{note.content}</p>
+                <div className="mt-3 text-[11px] text-muted-foreground font-mono-tabular">{note.updatedAt}</div>
               </div>
-              <p className="text-ui text-muted-foreground line-clamp-2">{note.content}</p>
-              <div className="mt-3 text-[11px] text-muted-foreground font-mono-tabular">{note.updatedAt}</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );
