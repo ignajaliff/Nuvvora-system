@@ -17,7 +17,7 @@ const statusStyles: Record<StatusType, string> = {
   low: 'bg-muted text-muted-foreground',
   medium: 'bg-warning/10 text-warning',
   high: 'bg-destructive/10 text-destructive',
-  development: 'bg-primary/10 text-primary',
+  development: 'bg-warning/10 text-warning',
   maintenance: 'bg-success/10 text-success',
   staging: 'bg-warning/10 text-warning',
   pendiente: 'bg-warning/10 text-warning',
