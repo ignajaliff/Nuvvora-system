@@ -22,6 +22,7 @@ function getLogoUrl(path: string) {
 
 const tabs = [
   { id: 'general', label: 'General', icon: Info },
+  { id: 'tareas', label: 'Tareas', icon: ListTodo },
   { id: 'payments', label: 'Historial de pagos', icon: CreditCard },
   { id: 'api', label: 'API Vault', icon: KeyRound },
 ] as const;
