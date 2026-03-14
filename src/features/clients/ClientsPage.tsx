@@ -244,6 +244,14 @@ const ClientsPage = () => {
         <Label>Versión</Label>
         <Input value={formData.version} onChange={e => setFormData(f => ({ ...f, version: e.target.value }))} placeholder="Ej: 1.0.0" />
       </div>
+      <div className="space-y-2">
+        <Label>Link 1</Label>
+        <Input value={formData.link1} onChange={e => setFormData(f => ({ ...f, link1: e.target.value }))} placeholder="https://..." />
+      </div>
+      <div className="space-y-2">
+        <Label>Link 2</Label>
+        <Input value={formData.link2} onChange={e => setFormData(f => ({ ...f, link2: e.target.value }))} placeholder="https://..." />
+      </div>
       <button
         type="submit"
         disabled={isPending}
