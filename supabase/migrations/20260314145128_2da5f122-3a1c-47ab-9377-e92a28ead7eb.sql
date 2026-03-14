@@ -1,0 +1,2 @@
+ALTER TABLE public.proyectos DROP CONSTRAINT proyectos_estado_check;
+ALTER TABLE public.proyectos ADD CONSTRAINT proyectos_estado_check CHECK (estado IN ('development', 'maintenance', 'staging', 'active'));
