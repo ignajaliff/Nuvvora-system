@@ -78,7 +78,7 @@ const DashboardPage = () => {
       <motion.div variants={fadeUp}>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground text-ui mt-1">Resumen de tu actividad</p>
-      </div>
+      </motion.div>
 
       {/* Top stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
