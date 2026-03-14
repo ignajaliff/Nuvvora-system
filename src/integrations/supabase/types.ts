@@ -150,6 +150,7 @@ export type Database = {
           logo_empresa: string | null
           nombre_cliente: string | null
           nombre_empresa: string
+          progreso: number
           stack: string | null
           version: string | null
         }
@@ -161,6 +162,7 @@ export type Database = {
           logo_empresa?: string | null
           nombre_cliente?: string | null
           nombre_empresa: string
+          progreso?: number
           stack?: string | null
           version?: string | null
         }
@@ -172,6 +174,7 @@ export type Database = {
           logo_empresa?: string | null
           nombre_cliente?: string | null
           nombre_empresa?: string
+          progreso?: number
           stack?: string | null
           version?: string | null
         }
