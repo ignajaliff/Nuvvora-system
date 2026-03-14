@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           estado: string
           id: string
+          logo_empresa: string | null
           nombre_cliente: string | null
           nombre_empresa: string
           stack: string | null
@@ -30,6 +31,7 @@ export type Database = {
           created_at?: string
           estado?: string
           id?: string
+          logo_empresa?: string | null
           nombre_cliente?: string | null
           nombre_empresa: string
           stack?: string | null
@@ -40,6 +42,7 @@ export type Database = {
           created_at?: string
           estado?: string
           id?: string
+          logo_empresa?: string | null
           nombre_cliente?: string | null
           nombre_empresa?: string
           stack?: string | null

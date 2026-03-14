@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -29,6 +29,11 @@ function formatClientSince(dateStr: string) {
   return `${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
+function getLogoUrl(path: string) {
+  const { data } = supabase.storage.from('logos').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 const fetchProyectos = async () => {
   const { data, error } = await supabase.from('proyectos').select('*').order('created_at', { ascending: false });
   if (error) throw error;
@@ -40,6 +45,9 @@ const ClientsPage = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     nombre_empresa: '',
     nombre_cliente: '',
@@ -49,15 +57,38 @@ const ClientsPage = () => {
     version: '1.0.0',
   });
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    }
+  };
+
   const mutation = useMutation({
     mutationFn: async (newClient: typeof form) => {
-      const { error } = await supabase.from('proyectos').insert([newClient]);
+      let logoPath: string | null = null;
+
+      if (logoFile) {
+        const ext = logoFile.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from('logos').upload(fileName, logoFile, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+        if (uploadError) throw uploadError;
+        logoPath = fileName;
+      }
+
+      const { error } = await supabase.from('proyectos').insert([{ ...newClient, logo_empresa: logoPath }]);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['proyectos'] });
       setOpen(false);
       setForm({ nombre_empresa: '', nombre_cliente: '', estado: 'development', cliente_desde: new Date().toISOString().split('T')[0], stack: '', version: '1.0.0' });
+      setLogoFile(null);
+      setLogoPreview(null);
       toast({ title: 'Cliente creado', description: 'El cliente se ha agregado correctamente.' });
     },
     onError: (err: any) => {
@@ -89,6 +120,22 @@ const ClientsPage = () => {
               <DialogTitle>Nuevo Cliente</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+              {/* Logo upload */}
+              <div className="space-y-2">
+                <Label>Logo de la empresa</Label>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="h-16 w-16 rounded-lg border-2 border-dashed border-border bg-white flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors overflow-hidden"
+                >
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Logo preview" className="h-full w-full object-contain p-1" />
+                  ) : (
+                    <span className="text-[11px] text-muted-foreground text-center leading-tight">+ Logo</span>
+                  )}
+                </div>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="nombre_empresa">Nombre de la empresa *</Label>
                 <Input id="nombre_empresa" value={form.nombre_empresa} onChange={e => setForm(f => ({ ...f, nombre_empresa: e.target.value }))} placeholder="Ej: TechCorp" required />
@@ -134,8 +181,8 @@ const ClientsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
@@ -144,26 +191,35 @@ const ClientsPage = () => {
           initial="hidden"
           animate="show"
           variants={stagger}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-5"
         >
           {clients.map(client => (
             <motion.div
               key={client.id}
               variants={fadeUp}
-              className="glass-card p-5 cursor-pointer group"
+              className="glass-card p-6 cursor-pointer group"
             >
               <div className="relative z-10 flex flex-col gap-4">
-                <div className="h-12 w-12 rounded-lg border border-border bg-white flex items-center justify-center shadow-sm shrink-0">
-                  <span className="text-sm font-semibold text-muted-foreground">
-                    {client.nombre_empresa.slice(0, 2).toUpperCase()}
-                  </span>
+                {/* Logo */}
+                <div className="h-14 w-14 rounded-lg border border-border bg-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden">
+                  {client.logo_empresa ? (
+                    <img
+                      src={getLogoUrl(client.logo_empresa)}
+                      alt={`${client.nombre_empresa} logo`}
+                      className="h-full w-full object-contain p-1.5"
+                    />
+                  ) : (
+                    <span className="text-sm font-semibold text-muted-foreground">
+                      {client.nombre_empresa.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
                 </div>
 
-                <h3 className="text-[15px] font-semibold text-foreground leading-tight">
+                <h3 className="text-base font-semibold text-foreground leading-tight">
                   {client.nombre_empresa}
                 </h3>
 
-                <div className="flex flex-col gap-2 text-[13px]">
+                <div className="flex flex-col gap-2.5 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">Estado:</span>
                     <StatusBadge status={client.estado as any} />
@@ -175,7 +231,7 @@ const ClientsPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-[12px] mt-auto pt-2 border-t border-border/50">
+                <div className="flex items-center justify-between text-[13px] mt-auto pt-3 border-t border-border/50">
                   <span className="text-muted-foreground font-mono">{client.stack || '—'}</span>
                   <span className="text-muted-foreground font-mono">v{client.version || '1.0.0'}</span>
                 </div>
