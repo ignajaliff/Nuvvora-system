@@ -66,29 +66,29 @@ const ClientDetailPage = () => {
   }
 
   return (
-    <motion.div initial="hidden" animate="show" variants={fadeUp} className="space-y-6">
+    <motion.div initial="hidden" animate="show" variants={fadeUp} className="space-y-4 sm:space-y-6">
       {/* Back button */}
       <button
         onClick={() => navigate('/clients')}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
-        <ArrowLeft size={16} />
+        <ArrowLeft size={14} />
         Clientes
       </button>
 
       {/* Header card */}
-      <div className="glass-card p-6">
-        <div className="flex items-start gap-5">
+      <div className="glass-card p-4 sm:p-6">
+        <div className="flex items-start gap-3 sm:gap-5">
           {/* Logo */}
-          <div className="h-20 w-20 rounded-xl border border-border bg-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden">
+          <div className="h-12 w-12 sm:h-20 sm:w-20 rounded-lg sm:rounded-xl border border-border bg-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden">
             {client.logo_empresa ? (
               <img
                 src={getLogoUrl(client.logo_empresa)}
                 alt={`${client.nombre_empresa} logo`}
-                className="h-full w-full object-contain p-2"
+                className="h-full w-full object-contain p-1.5 sm:p-2"
               />
             ) : (
-              <span className="text-xl font-semibold text-muted-foreground">
+              <span className="text-sm sm:text-xl font-semibold text-muted-foreground">
                 {client.nombre_empresa.slice(0, 2).toUpperCase()}
               </span>
             )}
@@ -96,66 +96,66 @@ const ClientDetailPage = () => {
 
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-base sm:text-2xl font-semibold text-foreground tracking-tight">
                 {client.nombre_empresa}
               </h1>
               <StatusBadge status={client.estado as any} />
             </div>
             {client.nombre_cliente && (
-              <p className="text-muted-foreground text-sm mt-1">{client.nombre_cliente}</p>
+              <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 sm:mt-1">{client.nombre_cliente}</p>
             )}
-            <p className="text-muted-foreground text-xs font-mono mt-1.5">
+            <p className="text-muted-foreground text-[10px] sm:text-xs font-mono mt-1">
               ID: {client.id.slice(0, 8).toUpperCase()}
             </p>
           </div>
-
-          {/* Project links */}
-          {((client as any).link1 || (client as any).link2) && (
-            <div className="flex items-center gap-2 shrink-0">
-              {(client as any).link1 && (
-                <a
-                  href={(client as any).link1}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
-                >
-                  Ver Proyecto
-                </a>
-              )}
-              {(client as any).link2 && (
-                <a
-                  href={(client as any).link2}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted transition-colors"
-                >
-                  Ver Proyecto (2)
-                </a>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-1 mt-6 border-t border-border/50 pt-4">
+        {/* Project links - stacked on mobile */}
+        {((client as any).link1 || (client as any).link2) && (
+          <div className="flex items-center gap-2 mt-3 sm:mt-0">
+            {(client as any).link1 && (
+              <a
+                href={(client as any).link1}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Ver Proyecto
+              </a>
+            )}
+            {(client as any).link2 && (
+              <a
+                href={(client as any).link2}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-border text-foreground text-xs sm:text-sm font-medium hover:bg-muted transition-colors"
+              >
+                Ver Proyecto (2)
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Tabs - scrollable on mobile */}
+        <div className="flex items-center gap-0.5 sm:gap-1 mt-4 sm:mt-6 border-t border-border/50 pt-3 sm:pt-4 overflow-x-auto scrollbar-hide">
           {tabs.map(({ id: tabId, label, icon: Icon }) => (
             <button
               key={tabId}
               onClick={() => setActiveTab(tabId)}
               className={cn(
-                'relative inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors',
+                'relative inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-sm font-medium rounded-md transition-colors whitespace-nowrap shrink-0',
                 activeTab === tabId
                   ? 'text-foreground'
                   : 'text-muted-foreground hover:text-foreground/80'
               )}
             >
-              <Icon size={16} />
+              <Icon size={14} className="sm:w-4 sm:h-4" />
               {label}
               {activeTab === tabId && (
                 <motion.div
                   layoutId="client-tab-indicator"
-                  className="absolute bottom-0 left-4 right-4 h-0.5 bg-foreground rounded-full"
+                  className="absolute bottom-0 left-2.5 right-2.5 sm:left-4 sm:right-4 h-0.5 bg-foreground rounded-full"
                   transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }}
                 />
               )}
