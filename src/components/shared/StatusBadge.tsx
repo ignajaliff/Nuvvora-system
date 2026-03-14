@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high' | 'development' | 'maintenance' | 'staging' | 'active';
+type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high' | 'development' | 'maintenance' | 'staging' | 'pendiente' | 'pagado' | 'vencido' | 'propuesta' | 'activo' | 'suspendido';
 
 const statusStyles: Record<StatusType, string> = {
   active: 'bg-success/10 text-success',
