@@ -20,13 +20,6 @@ const navItems = [
   { to: '/billing', label: 'Facturación', icon: Receipt, prefetchKey: 'invoices' as const },
 ];
 
-const prefetchMap = {
-  clients: api.getClients,
-  projects: api.getProjects,
-  tasks: api.getTasks,
-  notes: api.getNotes,
-  invoices: api.getInvoices,
-};
 
 export const AppSidebar = () => {
   const queryClient = useQueryClient();
