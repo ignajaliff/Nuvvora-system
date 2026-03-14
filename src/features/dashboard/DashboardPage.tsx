@@ -251,7 +251,7 @@ const DashboardPage = () => {
             <p className="text-muted-foreground text-sm">No hay tareas pendientes. 🎉</p>
           </div>
         )}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
