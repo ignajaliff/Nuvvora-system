@@ -5,20 +5,20 @@ export const BackgroundGlow = ({ children, className }: { children?: React.React
     <div className={cn("fixed inset-0 -z-10 overflow-hidden bg-background", className)}>
       {/* Primary soft indigo glow */}
       <div
-        className="absolute top-[-20%] left-[-10%] h-[600px] w-[600px] rounded-full opacity-50 blur-[120px]"
-        style={{ background: '#C7D2FE' }}
+        className="absolute top-[-20%] left-[-10%] h-[600px] w-[600px] rounded-full opacity-35 blur-[140px]"
+        style={{ background: '#D4D8F8' }}
       />
 
-      {/* Cyan accent */}
+      {/* Cyan accent - softened */}
       <div
-        className="absolute top-[10%] right-[5%] h-[500px] w-[500px] rounded-full opacity-40 blur-[120px]"
-        style={{ background: '#67E8F9' }}
+        className="absolute top-[10%] right-[5%] h-[500px] w-[500px] rounded-full opacity-20 blur-[140px]"
+        style={{ background: '#A5F3FC' }}
       />
 
-      {/* Light blue spread */}
+      {/* Light blue spread - softened */}
       <div
-        className="absolute bottom-[0%] left-[30%] h-[550px] w-[550px] rounded-full opacity-35 blur-[140px]"
-        style={{ background: '#BAE6FD' }}
+        className="absolute bottom-[0%] left-[30%] h-[550px] w-[550px] rounded-full opacity-18 blur-[160px]"
+        style={{ background: '#D0EBFC' }}
       />
 
       {/* Subtle slate wash */}
