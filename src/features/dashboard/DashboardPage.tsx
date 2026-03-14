@@ -3,17 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 import { Users, CheckSquare, Eye, EyeOff } from 'lucide-react';
-
-const contentFade = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration: 0.6, delay: 0.9, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-};
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -80,15 +73,15 @@ const DashboardPage = () => {
   const tareasItems = tareas?.filter(t => t.estado === 'todo' || t.estado === 'in_progress') ?? [];
 
   return (
-    <motion.div className="space-y-8" initial="hidden" animate="show" variants={contentFade}>
+    <motion.div className="space-y-8" initial="hidden" animate="show" variants={stagger}>
       {/* Header */}
-      <div>
+      <motion.div variants={fadeUp}>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground text-ui mt-1">Resumen de tu actividad</p>
-      </div>
+      </motion.div>
 
       {/* Top stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Clientes activos */}
         <div className="glass-card p-5">
           <div className="relative z-10">
@@ -161,10 +154,10 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Proyectos en Desarrollo */}
-      <div>
+      <motion.div variants={fadeUp}>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-sm font-medium text-foreground">Proyectos en Desarrollo</h2>
           <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-warning/15 text-warning text-[11px] font-semibold">
@@ -208,10 +201,10 @@ const DashboardPage = () => {
             <p className="text-muted-foreground text-sm">No hay proyectos en desarrollo.</p>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Tareas Pendientes */}
-      <div>
+      <motion.div variants={fadeUp}>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-sm font-medium text-foreground">Tareas Pendientes</h2>
           <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-primary/15 text-primary text-[11px] font-semibold">
@@ -258,7 +251,7 @@ const DashboardPage = () => {
             <p className="text-muted-foreground text-sm">No hay tareas pendientes. 🎉</p>
           </div>
         )}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
