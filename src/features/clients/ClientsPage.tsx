@@ -6,14 +6,10 @@ import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
-  if (months >= 12) {
-    const years = Math.floor(months / 12);
-    return `${years} año${years > 1 ? 's' : ''}`;
-  }
-  return `${months} mes${months !== 1 ? 'es' : ''}`;
+function formatClientSince(dateStr: string) {
+  const date = new Date(dateStr);
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  return `${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
 const ClientsPage = () => {
@@ -51,30 +47,39 @@ const ClientsPage = () => {
               className="glass-card p-5 cursor-pointer group"
             >
               <div className="relative z-10 flex flex-col gap-4">
-                {/* Logo placeholder + status */}
-                <div className="flex items-start justify-between">
-                  <div className="h-12 w-12 rounded-lg border border-border bg-white flex items-center justify-center shadow-sm shrink-0">
-                    <span className="text-sm font-semibold text-muted-foreground">
-                      {client.company.slice(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                  <StatusBadge status={client.status} />
-                </div>
-
-                {/* Company & time */}
-                <div>
-                  <h3 className="text-[15px] font-semibold text-foreground leading-tight">
-                    {client.company}
-                  </h3>
-                  <p className="text-muted-foreground text-ui mt-1">
-                    {client.name}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <span className="font-mono-tabular text-[12px]">
-                    Hace {timeAgo(client.createdAt)}
+                {/* Logo placeholder */}
+                <div className="h-12 w-12 rounded-lg border border-border bg-white flex items-center justify-center shadow-sm shrink-0">
+                  <span className="text-sm font-semibold text-muted-foreground">
+                    {client.company.slice(0, 2).toUpperCase()}
                   </span>
+                </div>
+
+                {/* Company name */}
+                <h3 className="text-[15px] font-semibold text-foreground leading-tight">
+                  {client.company}
+                </h3>
+
+                {/* Info rows */}
+                <div className="flex flex-col gap-2 text-[13px]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Estado:</span>
+                    <StatusBadge status={client.status} />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Cliente desde:</span>
+                    <span className="text-foreground font-medium">{formatClientSince(client.createdAt)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Stack:</span>
+                    <span className="text-foreground font-mono text-[12px]">{client.stack}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Versión:</span>
+                    <span className="text-foreground font-mono text-[12px]">v{client.version}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>

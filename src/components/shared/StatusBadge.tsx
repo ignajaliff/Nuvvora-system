@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high';
+type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high' | 'development' | 'maintenance' | 'staging';
 
 const statusStyles: Record<StatusType, string> = {
   active: 'bg-success/10 text-success',
@@ -17,6 +17,9 @@ const statusStyles: Record<StatusType, string> = {
   low: 'bg-muted text-muted-foreground',
   medium: 'bg-warning/10 text-warning',
   high: 'bg-destructive/10 text-destructive',
+  development: 'bg-primary/10 text-primary',
+  maintenance: 'bg-success/10 text-success',
+  staging: 'bg-warning/10 text-warning',
 };
 
 const statusLabels: Record<StatusType, string> = {
@@ -34,6 +37,9 @@ const statusLabels: Record<StatusType, string> = {
   low: 'Baja',
   medium: 'Media',
   high: 'Alta',
+  development: 'En Desarrollo',
+  maintenance: 'En Mantenimiento',
+  staging: 'Staging / Testing',
 };
 
 export const StatusBadge = ({ status, className }: { status: StatusType; className?: string }) => (

@@ -59,7 +59,7 @@ const DashboardPage = () => {
     );
   }
 
-  const activeClients = clients?.filter(c => c.status === 'active').length ?? 0;
+  const activeClients = clients?.filter(c => c.status === 'development' || c.status === 'maintenance').length ?? 0;
   const activeProjects = projects?.filter(p => p.status === 'in_progress').length ?? 0;
   const pendingTasks = tasks?.filter(t => t.status !== 'done').length ?? 0;
   const totalRevenue = invoices?.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0) ?? 0;

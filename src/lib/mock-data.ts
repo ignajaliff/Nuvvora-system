@@ -5,8 +5,10 @@ export interface Client {
   name: string;
   email: string;
   company: string;
-  status: 'active' | 'inactive';
+  status: 'development' | 'maintenance' | 'staging';
   createdAt: string;
+  stack: string;
+  version: string;
 }
 
 export interface Project {
@@ -51,11 +53,11 @@ export interface Invoice {
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 export const mockClients: Client[] = [
-  { id: '1', name: 'Carlos Mendez', email: 'carlos@techcorp.com', company: 'TechCorp', status: 'active', createdAt: '2025-01-15' },
-  { id: '2', name: 'Laura Vásquez', email: 'laura@designstudio.co', company: 'Design Studio', status: 'active', createdAt: '2025-02-20' },
-  { id: '3', name: 'Miguel Ángel Rivas', email: 'miguel@startupx.io', company: 'StartupX', status: 'active', createdAt: '2025-03-01' },
-  { id: '4', name: 'Ana Belén Torres', email: 'ana@mediaco.com', company: 'MediaCo', status: 'inactive', createdAt: '2024-11-10' },
-  { id: '5', name: 'Roberto Díaz', email: 'roberto@finserv.com', company: 'FinServ', status: 'active', createdAt: '2025-01-28' },
+  { id: '1', name: 'Carlos Mendez', email: 'carlos@techcorp.com', company: 'TechCorp', status: 'development', createdAt: '2025-01-15', stack: 'React + Vite', version: '2.1.0' },
+  { id: '2', name: 'Laura Vásquez', email: 'laura@designstudio.co', company: 'Design Studio', status: 'maintenance', createdAt: '2025-02-20', stack: 'Next.js + Tailwind', version: '1.3.2' },
+  { id: '3', name: 'Miguel Ángel Rivas', email: 'miguel@startupx.io', company: 'StartupX', status: 'staging', createdAt: '2025-03-01', stack: 'React + Supabase', version: '0.9.1' },
+  { id: '4', name: 'Ana Belén Torres', email: 'ana@mediaco.com', company: 'MediaCo', status: 'maintenance', createdAt: '2024-11-10', stack: 'Vue + Firebase', version: '3.0.4' },
+  { id: '5', name: 'Roberto Díaz', email: 'roberto@finserv.com', company: 'FinServ', status: 'development', createdAt: '2025-01-28', stack: 'React + Node.js', version: '1.0.0' },
 ];
 
 export const mockProjects: Project[] = [
