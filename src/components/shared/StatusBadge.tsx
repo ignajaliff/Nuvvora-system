@@ -20,6 +20,12 @@ const statusStyles: Record<StatusType, string> = {
   development: 'bg-primary/10 text-primary',
   maintenance: 'bg-success/10 text-success',
   staging: 'bg-warning/10 text-warning',
+  pendiente: 'bg-warning/10 text-warning',
+  pagado: 'bg-success/10 text-success',
+  vencido: 'bg-destructive/10 text-destructive',
+  propuesta: 'bg-muted text-muted-foreground',
+  activo: 'bg-success/10 text-success',
+  suspendido: 'bg-destructive/10 text-destructive',
 };
 
 const statusLabels: Record<StatusType, string> = {
