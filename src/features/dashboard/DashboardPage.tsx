@@ -201,7 +201,7 @@ const DashboardPage = () => {
             <p className="text-muted-foreground text-sm">No hay proyectos en desarrollo.</p>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Tareas Pendientes */}
       <motion.div variants={fadeUp}>
