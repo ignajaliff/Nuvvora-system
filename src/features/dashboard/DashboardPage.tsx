@@ -75,7 +75,7 @@ const DashboardPage = () => {
   return (
     <motion.div className="space-y-8" initial="hidden" animate="show" variants={stagger}>
       {/* Header */}
-      <div>
+      <motion.div variants={fadeUp}>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground text-ui mt-1">Resumen de tu actividad</p>
       </div>
