@@ -17,7 +17,7 @@ export const BackgroundGlow = ({ children, className }: { children?: React.React
 
       {/* Light blue spread */}
       <div
-        className="absolute bottom-[0%] left-[30%] h-[550px] w-[550px] rounded-full opacity-20 blur-[140px]"
+        className="absolute bottom-[0%] left-[30%] h-[550px] w-[550px] rounded-full opacity-35 blur-[140px]"
         style={{ background: '#BAE6FD' }}
       />
 
