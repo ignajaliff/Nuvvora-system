@@ -81,7 +81,7 @@ const DashboardPage = () => {
       </motion.div>
 
       {/* Top stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Clientes activos */}
         <div className="glass-card p-5">
           <div className="relative z-10">
