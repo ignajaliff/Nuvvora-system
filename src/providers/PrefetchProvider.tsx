@@ -8,21 +8,11 @@ export const usePrefetchAll = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const resources = [
-      { key: 'clients', fn: api.getClients },
-      { key: 'projects', fn: api.getProjects },
-      { key: 'tasks', fn: api.getTasks },
-      { key: 'notes', fn: api.getNotes },
-      { key: 'invoices', fn: api.getInvoices },
-    ];
-
-    resources.forEach(({ key, fn }) => {
-      queryClient.prefetchQuery({
-        queryKey: [key],
-        queryFn: fn,
-        staleTime: STALE_TIME,
-      });
-    });
+    queryClient.prefetchQuery({ queryKey: ['clients'], queryFn: api.getClients, staleTime: STALE_TIME });
+    queryClient.prefetchQuery({ queryKey: ['projects'], queryFn: api.getProjects, staleTime: STALE_TIME });
+    queryClient.prefetchQuery({ queryKey: ['tasks'], queryFn: api.getTasks, staleTime: STALE_TIME });
+    queryClient.prefetchQuery({ queryKey: ['notes'], queryFn: api.getNotes, staleTime: STALE_TIME });
+    queryClient.prefetchQuery({ queryKey: ['invoices'], queryFn: api.getInvoices, staleTime: STALE_TIME });
   }, [queryClient]);
 };
 
