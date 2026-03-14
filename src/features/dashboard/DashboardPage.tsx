@@ -154,7 +154,7 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Proyectos en Desarrollo */}
       <div>
