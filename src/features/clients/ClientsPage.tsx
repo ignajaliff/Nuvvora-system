@@ -102,6 +102,7 @@ const ClientsPage = () => {
                 <Select value={form.estado} onValueChange={v => setForm(f => ({ ...f, estado: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="active">Activo</SelectItem>
                     <SelectItem value="development">En Desarrollo</SelectItem>
                     <SelectItem value="maintenance">En Mantenimiento</SelectItem>
                     <SelectItem value="staging">Staging / Testing</SelectItem>
