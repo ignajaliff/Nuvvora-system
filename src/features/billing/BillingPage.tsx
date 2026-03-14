@@ -447,6 +447,63 @@ function NewInvoiceForm({ onClose }: { onClose: () => void }) {
     },
   });
 
+  // Fetch contract for selected project
+  const { data: contrato } = useQuery({
+    queryKey: ['contrato', form.id_proyecto],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contratos_proyecto')
+        .select('*')
+        .eq('id_proyecto', form.id_proyecto)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!form.id_proyecto,
+  });
+
+  // Fetch already paid fee inicial for this project
+  const { data: feeInicialPagado } = useQuery({
+    queryKey: ['fee-inicial-pagado', form.id_proyecto],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('facturacion')
+        .select('monto')
+        .eq('id_proyecto', form.id_proyecto)
+        .ilike('concepto', '%Fee Inicial%');
+      if (error) throw error;
+      return data?.reduce((sum, f) => sum + Number(f.monto), 0) ?? 0;
+    },
+    enabled: !!form.id_proyecto,
+  });
+
+  // Auto-fill monto when concepto or project changes
+  const handleConceptoChange = (concepto: string) => {
+    let monto = '';
+    if (contrato) {
+      if (concepto === 'abono_mensual') {
+        monto = String(contrato.abono_mensual);
+      } else if (concepto === 'fee_inicial') {
+        const restante = Math.max(0, Number(contrato.fee_inicial) - (feeInicialPagado ?? 0));
+        monto = String(restante);
+      }
+    }
+    // Build display concepto with month/year from fecha_emision
+    const d = new Date(form.fecha_emision + 'T00:00:00');
+    let displayConcepto = '';
+    if (concepto === 'abono_mensual') {
+      displayConcepto = `Abono Mensual - ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    } else if (concepto === 'fee_inicial') {
+      displayConcepto = `Fee Inicial`;
+    } else {
+      displayConcepto = concepto;
+    }
+    setForm(f => ({ ...f, concepto: displayConcepto, monto }));
+    setConceptoType(concepto);
+  };
+
+  const [conceptoType, setConceptoType] = useState('');
+
   const createInvoice = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from('facturacion').insert({
@@ -460,6 +517,8 @@ function NewInvoiceForm({ onClose }: { onClose: () => void }) {
 
   const isValid = form.id_proyecto && form.monto && form.concepto;
 
+  const feeRestante = contrato ? Math.max(0, Number(contrato.fee_inicial) - (feeInicialPagado ?? 0)) : 0;
+
   return (
     <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 space-y-4">
       <div className="flex items-center justify-between">
@@ -469,24 +528,57 @@ function NewInvoiceForm({ onClose }: { onClose: () => void }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Proyecto</label>
-          <select value={form.id_proyecto} onChange={e => setForm(f => ({ ...f, id_proyecto: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground">
+          <select value={form.id_proyecto} onChange={e => { setForm(f => ({ ...f, id_proyecto: e.target.value, monto: '', concepto: '' })); setConceptoType(''); }} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground">
             <option value="">Seleccionar...</option>
             {proyectos?.map(p => <option key={p.id} value={p.id}>{p.nombre_empresa}</option>)}
           </select>
+        </div>
+        <div>
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Concepto</label>
+          <select
+            value={conceptoType}
+            onChange={e => handleConceptoChange(e.target.value)}
+            disabled={!form.id_proyecto}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-50"
+          >
+            <option value="">Seleccionar...</option>
+            <option value="abono_mensual">Abono Mensual</option>
+            <option value="fee_inicial">Fee Inicial</option>
+            <option value="otro">Otro</option>
+          </select>
+          {conceptoType === 'fee_inicial' && contrato && (
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Fee total: ${Number(contrato.fee_inicial).toLocaleString()} · Facturado: ${(feeInicialPagado ?? 0).toLocaleString()} · <span className="text-primary font-medium">Restante: ${feeRestante.toLocaleString()}</span>
+            </p>
+          )}
+          {conceptoType === 'abono_mensual' && contrato && (
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Abono mensual del contrato: <span className="text-primary font-medium">${Number(contrato.abono_mensual).toLocaleString()}</span>
+            </p>
+          )}
         </div>
         <div>
           <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Monto</label>
           <input type="number" value={form.monto} onChange={e => setForm(f => ({ ...f, monto: e.target.value }))} placeholder="0.00" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
         </div>
         <div>
-          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Concepto</label>
-          <input type="text" value={form.concepto} onChange={e => setForm(f => ({ ...f, concepto: e.target.value }))} placeholder="Abono Mensual - Abril 2026" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
-        </div>
-        <div>
           <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fecha emisión</label>
-          <input type="date" value={form.fecha_emision} onChange={e => setForm(f => ({ ...f, fecha_emision: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+          <input type="date" value={form.fecha_emision} onChange={e => {
+            setForm(f => ({ ...f, fecha_emision: e.target.value }));
+            // Update concepto label if abono mensual
+            if (conceptoType === 'abono_mensual') {
+              const d = new Date(e.target.value + 'T00:00:00');
+              setForm(f => ({ ...f, fecha_emision: e.target.value, concepto: `Abono Mensual - ${MONTHS[d.getMonth()]} ${d.getFullYear()}` }));
+            }
+          }} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
         </div>
       </div>
+      {conceptoType === 'otro' && (
+        <div>
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Concepto personalizado</label>
+          <input type="text" value={form.concepto} onChange={e => setForm(f => ({ ...f, concepto: e.target.value }))} placeholder="Descripción del concepto" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+        </div>
+      )}
       <div className="flex justify-end">
         <button onClick={() => createInvoice.mutate()} disabled={!isValid || createInvoice.isPending} className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
           {createInvoice.isPending ? 'Creando...' : 'Crear factura'}
