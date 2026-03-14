@@ -239,4 +239,70 @@ function ApiVaultTab() {
   );
 }
 
+/* ── Tareas Tab ── */
+function TareasTab({ projectId }: { projectId: string }) {
+  const { data: tareas, isLoading } = useQuery({
+    queryKey: ['tareas', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tareas')
+        .select('*')
+        .eq('id_proyecto', projectId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return <SkeletonCard />;
+  }
+
+  return (
+    <div className="glass-card overflow-hidden">
+      <div className="p-4 border-b border-border/50 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+          <ListTodo size={16} className="text-muted-foreground" />
+          Tareas del proyecto
+        </h2>
+        <span className="text-xs text-muted-foreground font-mono">{tareas?.length ?? 0} tareas</span>
+      </div>
+      <div className="relative z-10">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-foreground/5">
+              <th className="py-2 px-4 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Título</th>
+              <th className="py-2 px-4 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Estado</th>
+              <th className="py-2 px-4 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Entrega</th>
+              <th className="py-2 px-4 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Registrada</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(!tareas || tareas.length === 0) ? (
+              <tr>
+                <td colSpan={4} className="py-12 text-center text-sm text-muted-foreground">
+                  No hay tareas registradas para este proyecto.
+                </td>
+              </tr>
+            ) : (
+              tareas.map(task => (
+                <tr key={task.id} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150">
+                  <td className="py-3 px-4 text-sm text-foreground">{task.titulo}</td>
+                  <td className="py-3 px-4"><StatusBadge status={task.estado as any} /></td>
+                  <td className="py-3 px-4 font-mono text-xs text-muted-foreground">
+                    {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES') : '—'}
+                  </td>
+                  <td className="py-3 px-4 font-mono text-xs text-muted-foreground">
+                    {new Date(task.fecha_registro).toLocaleDateString('es-ES')}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default ClientDetailPage;
