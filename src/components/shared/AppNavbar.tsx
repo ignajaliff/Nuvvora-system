@@ -30,9 +30,9 @@ export const AppNavbar = () => {
     location.pathname === to || (to !== '/' && location.pathname.startsWith(to));
 
   return (
-    <header className="flex items-center px-8 pt-6 pb-2">
-      {/* Logo */}
-      <span className="text-base mr-8 shrink-0" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+    <header className="flex items-center px-4 md:px-8 pt-4 md:pt-6 pb-2">
+      {/* Logo - hidden on mobile */}
+      <span className="hidden md:inline text-base mr-8 shrink-0" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
         N<span style={{ fontStyle: 'italic', fontWeight: 500 }}>uvvora</span>
       </span>
 
@@ -75,10 +75,10 @@ export const AppNavbar = () => {
         </nav>
       </div>
 
-      {/* Logout button */}
+      {/* Logout button - hidden on mobile */}
       <button
         onClick={signOut}
-        className="shrink-0 p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+        className="hidden md:block shrink-0 p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
         title="Cerrar sesión"
       >
         <LogOut size={18} strokeWidth={2} />
