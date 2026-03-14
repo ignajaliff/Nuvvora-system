@@ -18,61 +18,63 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
-    const systemPrompt = `Eres un analista técnico. Analiza este audio y el nombre de la empresa seleccionada ("${empresa}"). Genera: 1. Un título técnico conciso para la tarea, 2. Una descripción detallada para un desarrollador. Devuelve los datos en formato JSON.`;
+    const systemPrompt = `Eres un analista técnico. Analiza este audio y el nombre de la empresa seleccionada ("${empresa}"). Genera: 1. Un título técnico conciso para la tarea, 2. Una descripción detallada para un desarrollador.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content: [
-              {
-                type: "input_audio",
-                input_audio: { data: audio, format: "webm" },
-              },
-              {
-                type: "text",
-                text: `Empresa: ${empresa}. Analiza el audio y genera el título técnico y la descripción detallada.`,
-              },
-            ],
-          },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "create_task",
-              description: "Crea una tarea técnica a partir del análisis del audio.",
-              parameters: {
-                type: "object",
-                properties: {
-                  titulo: { type: "string", description: "Título técnico conciso de la tarea" },
-                  descripcion: { type: "string", description: "Descripción detallada para un desarrollador" },
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: "audio/webm",
+                    data: audio,
+                  },
                 },
-                required: ["titulo", "descripcion"],
-                additionalProperties: false,
-              },
+                {
+                  text: `Empresa: ${empresa}. Analiza el audio y genera el título técnico y la descripción detallada.`,
+                },
+              ],
             },
+          ],
+          tools: [
+            {
+              functionDeclarations: [
+                {
+                  name: "create_task",
+                  description: "Crea una tarea técnica a partir del análisis del audio.",
+                  parameters: {
+                    type: "OBJECT",
+                    properties: {
+                      titulo: { type: "STRING", description: "Título técnico conciso de la tarea" },
+                      descripcion: { type: "STRING", description: "Descripción detallada para un desarrollador" },
+                    },
+                    required: ["titulo", "descripcion"],
+                  },
+                },
+              ],
+            },
+          ],
+          toolConfig: {
+            functionCallingConfig: { mode: "ANY", allowedFunctionNames: ["create_task"] },
           },
-        ],
-        tool_choice: { type: "function", function: { name: "create_task" } },
-      }),
-    });
+        }),
+      }
+    );
 
     if (!response.ok) {
       const status = response.status;
       const text = await response.text();
-      console.error("AI gateway error:", status, text);
+      console.error("Gemini API error:", status, text);
 
       if (status === 429) {
         return new Response(JSON.stringify({ error: "Límite de solicitudes excedido. Intenta de nuevo en unos momentos." }), {
@@ -80,36 +82,38 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (status === 402) {
-        return new Response(JSON.stringify({ error: "Créditos de IA agotados. Agrega fondos en tu workspace." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      return new Response(JSON.stringify({ error: "Error al procesar con IA" }), {
+      return new Response(JSON.stringify({ error: "Error al procesar con Gemini" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-
-    if (toolCall?.function?.arguments) {
-      const parsed = JSON.parse(toolCall.function.arguments);
-      return new Response(JSON.stringify(parsed), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    
+    // Extract function call from Gemini response
+    const candidate = data.candidates?.[0];
+    const parts = candidate?.content?.parts ?? [];
+    
+    for (const part of parts) {
+      if (part.functionCall) {
+        const args = part.functionCall.args;
+        return new Response(JSON.stringify({ titulo: args.titulo, descripcion: args.descripcion }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
-    // Fallback: try to parse from content
-    const content = data.choices?.[0]?.message?.content || "";
-    const jsonMatch = content.match(/\{[\s\S]*"titulo"[\s\S]*"descripcion"[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return new Response(JSON.stringify(parsed), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Fallback: try to parse from text content
+    for (const part of parts) {
+      if (part.text) {
+        const jsonMatch = part.text.match(/\{[\s\S]*"titulo"[\s\S]*"descripcion"[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          return new Response(JSON.stringify(parsed), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
     }
 
     return new Response(JSON.stringify({ error: "No se pudo extraer la información del audio" }), {
