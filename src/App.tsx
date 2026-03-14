@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +7,7 @@ import { PrefetchProvider } from "@/providers/PrefetchProvider";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { PageTransition } from "@/components/shared/PageTransition";
+import { SplashScreen } from "@/components/shared/SplashScreen";
 import DashboardPage from "@/features/dashboard/DashboardPage";
 import ClientsPage from "@/features/clients/ClientsPage";
 import ClientDetailPage from "@/features/clients/ClientDetailPage";
@@ -29,8 +31,15 @@ const queryClient = new QueryClient({
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
+  const [splashDone, setSplashDone] = useState(false);
+
   if (loading) return null;
   if (!session) return <Navigate to="/login" replace />;
+
+  if (!splashDone) {
+    return <SplashScreen onComplete={() => setSplashDone(true)} />;
+  }
+
   return <>{children}</>;
 };
 
