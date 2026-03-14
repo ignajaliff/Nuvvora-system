@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { PageTransition } from "@/components/shared/PageTransition";
 import DashboardPage from "@/features/dashboard/DashboardPage";
 import ClientsPage from "@/features/clients/ClientsPage";
+import ClientDetailPage from "@/features/clients/ClientDetailPage";
 import ProjectsPage from "@/features/projects/ProjectsPage";
 import TasksPage from "@/features/tasks/TasksPage";
 import NotesPage from "@/features/notes/NotesPage";
