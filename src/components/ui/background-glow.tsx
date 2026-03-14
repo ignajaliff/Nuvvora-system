@@ -5,7 +5,7 @@ export const BackgroundGlow = ({ children, className }: { children?: React.React
     <div className={cn("fixed inset-0 -z-10 overflow-hidden bg-background", className)}>
       {/* Primary soft indigo glow */}
       <div
-        className="absolute top-[-20%] left-[-10%] h-[600px] w-[600px] rounded-full opacity-30 blur-[120px]"
+        className="absolute top-[-20%] left-[-10%] h-[600px] w-[600px] rounded-full opacity-50 blur-[120px]"
         style={{ background: '#C7D2FE' }}
       />
 
