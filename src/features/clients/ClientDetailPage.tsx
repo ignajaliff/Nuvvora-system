@@ -646,17 +646,8 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
     </motion.div>
   );
 }
-    queryKey: ['facturacion', projectId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('facturacion')
-        .select('*')
-        .eq('id_proyecto', projectId)
-        .order('fecha_emision', { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
+
+
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, newStatus }: { id: string; newStatus: string }) => {
