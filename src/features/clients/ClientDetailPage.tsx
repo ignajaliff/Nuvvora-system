@@ -140,6 +140,7 @@ const ClientDetailPage = () => {
       {/* Tab content */}
       <div className="space-y-5">
         {activeTab === 'general' && <GeneralTab client={client} />}
+        {activeTab === 'tareas' && <TareasTab projectId={client.id} />}
         {activeTab === 'payments' && <PaymentsTab />}
         {activeTab === 'api' && <ApiVaultTab />}
       </div>
