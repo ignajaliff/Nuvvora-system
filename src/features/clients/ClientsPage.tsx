@@ -55,6 +55,8 @@ const emptyForm = {
   cliente_desde: new Date().toISOString().split('T')[0],
   stack: '',
   version: '1.0.0',
+  link1: '',
+  link2: '',
 };
 
 const ClientsPage = () => {
@@ -171,6 +173,8 @@ const ClientsPage = () => {
       cliente_desde: client.cliente_desde,
       stack: client.stack || '',
       version: client.version || '1.0.0',
+      link1: client.link1 || '',
+      link2: client.link2 || '',
     });
     setEditLogoPreview(client.logo_empresa ? getLogoUrl(client.logo_empresa) : null);
     setEditLogoFile(null);
@@ -239,6 +243,14 @@ const ClientsPage = () => {
       <div className="space-y-2">
         <Label>Versión</Label>
         <Input value={formData.version} onChange={e => setFormData(f => ({ ...f, version: e.target.value }))} placeholder="Ej: 1.0.0" />
+      </div>
+      <div className="space-y-2">
+        <Label>Link 1</Label>
+        <Input value={formData.link1} onChange={e => setFormData(f => ({ ...f, link1: e.target.value }))} placeholder="https://..." />
+      </div>
+      <div className="space-y-2">
+        <Label>Link 2</Label>
+        <Input value={formData.link2} onChange={e => setFormData(f => ({ ...f, link2: e.target.value }))} placeholder="https://..." />
       </div>
       <button
         type="submit"

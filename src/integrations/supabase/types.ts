@@ -147,6 +147,8 @@ export type Database = {
           created_at: string
           estado: string
           id: string
+          link1: string | null
+          link2: string | null
           logo_empresa: string | null
           nombre_cliente: string | null
           nombre_empresa: string
@@ -159,6 +161,8 @@ export type Database = {
           created_at?: string
           estado?: string
           id?: string
+          link1?: string | null
+          link2?: string | null
           logo_empresa?: string | null
           nombre_cliente?: string | null
           nombre_empresa: string
@@ -171,6 +175,8 @@ export type Database = {
           created_at?: string
           estado?: string
           id?: string
+          link1?: string | null
+          link2?: string | null
           logo_empresa?: string | null
           nombre_cliente?: string | null
           nombre_empresa?: string
