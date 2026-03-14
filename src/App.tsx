@@ -10,6 +10,7 @@ import ClientsPage from "@/features/clients/ClientsPage";
 import ClientDetailPage from "@/features/clients/ClientDetailPage";
 import ProjectsPage from "@/features/projects/ProjectsPage";
 import TasksPage from "@/features/tasks/TasksPage";
+import TaskDetailPage from "@/features/tasks/TaskDetailPage";
 import NotesPage from "@/features/notes/NotesPage";
 import BillingPage from "@/features/billing/BillingPage";
 import NotFound from "./pages/NotFound";
@@ -35,6 +36,7 @@ const AppRoutes = () => {
           <Route path="/clients/:id" element={<ClientDetailPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/tasks/:id" element={<TaskDetailPage />} />
           <Route path="/notes" element={<NotesPage />} />
           <Route path="/billing" element={<BillingPage />} />
           <Route path="*" element={<NotFound />} />
