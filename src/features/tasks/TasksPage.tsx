@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -24,6 +24,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -37,8 +43,52 @@ import {
 import { toast } from 'sonner';
 import { GripVertical, Zap } from 'lucide-react';
 import { VoiceRecorder } from './components/VoiceRecorder';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-/* ── Draggable task row ── */
+/* ── Responsive Modal: Drawer on mobile, Dialog on desktop ── */
+function ResponsiveModal({ open, onOpenChange, title, titleIcon, children }: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  title: string;
+  titleIcon?: ReactNode;
+  children: ReactNode;
+}) {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerHeader className="text-left">
+            <DrawerTitle className="flex items-center gap-2 text-base">
+              {titleIcon}
+              {title}
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-6 overflow-y-auto">
+            {children}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {titleIcon}
+            {title}
+          </DialogTitle>
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── Draggable task row (desktop) ── */
 const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
@@ -62,6 +112,37 @@ const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void })
         {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES') : '—'}
       </td>
     </tr>
+  );
+};
+
+/* ── Mobile task card ── */
+const MobileTaskCard = ({ task, onClick }: { task: any; onClick: () => void }) => {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: task.id,
+    data: { task },
+  });
+  const style = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    opacity: isDragging ? 0.4 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="p-3 border-b border-foreground/5 last:border-0 flex items-start gap-2" onClick={onClick}>
+      <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-0.5 mt-0.5 shrink-0">
+        <GripVertical className="w-3.5 h-3.5" />
+      </button>
+      <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-xs font-medium text-foreground leading-snug">{task.titulo}</p>
+          <StatusBadge status={task.estado as any} />
+        </div>
+        <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
+          <span className="truncate">{(task.proyectos as any)?.nombre_empresa ?? '—'}</span>
+          {task.entrega_programada && (
+            <span className="shrink-0">• {new Date(task.entrega_programada).toLocaleDateString('es-ES')}</span>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -200,25 +281,27 @@ const TasksPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Tareas</h1>
-          <p className="text-muted-foreground text-ui mt-1">Organiza y gestiona tu trabajo — arrastra tareas entre estados</p>
+          <h1 className="text-lg sm:text-2xl font-semibold tracking-tight">Tareas</h1>
+          <p className="text-muted-foreground text-[11px] sm:text-ui mt-0.5 sm:mt-1 hidden sm:block">Organiza y gestiona tu trabajo — arrastra tareas entre estados</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={() => setQuickOpen(true)}
-            className="px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-ui font-medium hover:opacity-90 transition-opacity duration-150 flex items-center gap-1.5"
+            className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-warning text-warning-foreground text-[11px] sm:text-ui font-medium hover:opacity-90 transition-opacity duration-150 flex items-center gap-1 sm:gap-1.5"
           >
-            <Zap className="w-3.5 h-3.5" />
-            Tarea rápida
+            <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span className="hidden sm:inline">Tarea rápida</span>
+            <span className="sm:hidden">Rápida</span>
           </button>
           <button
             onClick={() => setOpen(true)}
-            className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-ui font-medium hover:opacity-90 transition-opacity duration-150"
+            className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] sm:text-ui font-medium hover:opacity-90 transition-opacity duration-150"
           >
-            Nueva tarea
+            <span className="hidden sm:inline">Nueva tarea</span>
+            <span className="sm:hidden">Nueva</span>
           </button>
         </div>
       </div>
@@ -227,16 +310,17 @@ const TasksPage = () => {
         <SkeletonTable rows={7} cols={5} />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <motion.div className="space-y-6" initial="hidden" animate="show" variants={stagger}>
+          <motion.div className="space-y-4 sm:space-y-6" initial="hidden" animate="show" variants={stagger}>
             {STATUS_ORDER.map(status => (
               <motion.div key={status} variants={fadeUp}>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
                   <StatusBadge status={status as any} />
-                  <span className="text-[11px] text-muted-foreground font-mono-tabular">{groupedTasks[status].length}</span>
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-mono-tabular">{groupedTasks[status].length}</span>
                 </div>
                 <DroppableColumn status={status}>
                   <div className="glass-card overflow-hidden">
-                    <div className="relative z-10">
+                    {/* Desktop table */}
+                    <div className="relative z-10 hidden sm:block">
                       <table className="w-full">
                         <tbody>
                           {groupedTasks[status].length === 0 ? (
@@ -249,6 +333,16 @@ const TasksPage = () => {
                         </tbody>
                       </table>
                     </div>
+                    {/* Mobile card list */}
+                    <div className="sm:hidden">
+                      {groupedTasks[status].length === 0 ? (
+                        <div className="py-5 px-3 text-center text-xs text-muted-foreground">Sin tareas — arrastra una aquí</div>
+                      ) : (
+                        groupedTasks[status].map(task => (
+                          <MobileTaskCard key={task.id} task={task} onClick={() => navigate(`/tasks/${task.id}`)} />
+                        ))
+                      )}
+                    </div>
                   </div>
                 </DroppableColumn>
               </motion.div>
@@ -258,122 +352,112 @@ const TasksPage = () => {
         </DndContext>
       )}
 
-      {/* Dialog Nueva Tarea (completo) */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Nueva tarea</DialogTitle></DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-            <div className="space-y-2">
-              <Label htmlFor="proyecto">Proyecto *</Label>
-              <Select value={form.id_proyecto} onValueChange={v => setForm(f => ({ ...f, id_proyecto: v }))}>
-                <SelectTrigger><SelectValue placeholder="Selecciona un proyecto" /></SelectTrigger>
-                <SelectContent>{proyectos?.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre_empresa}</SelectItem>)}</SelectContent>
+      {/* Nueva Tarea */}
+      <ResponsiveModal open={open} onOpenChange={setOpen} title="Nueva tarea">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-2">
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="proyecto" className="text-xs sm:text-sm">Proyecto *</Label>
+            <Select value={form.id_proyecto} onValueChange={v => setForm(f => ({ ...f, id_proyecto: v }))}>
+              <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="Selecciona un proyecto" /></SelectTrigger>
+              <SelectContent>{proyectos?.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre_empresa}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="titulo" className="text-xs sm:text-sm">Título *</Label>
+            <Input id="titulo" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} placeholder="Ej: Diseñar landing page" className="text-xs sm:text-sm" />
+          </div>
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="descripcion" className="text-xs sm:text-sm">Descripción</Label>
+              <VoiceRecorder empresa={selectedEmpresaName} disabled={!form.id_proyecto} onResult={handleVoiceResult} />
+            </div>
+            <Textarea id="descripcion" value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} placeholder="Describe la tarea o usa el micrófono..." rows={3} className="text-xs sm:text-sm" />
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="entrega" className="text-xs sm:text-sm">Entrega</Label>
+              <Input id="entrega" type="date" value={form.entrega_programada} onChange={e => setForm(f => ({ ...f, entrega_programada: e.target.value }))} className="text-xs sm:text-sm" />
+            </div>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="estado" className="text-xs sm:text-sm">Estado</Label>
+              <Select value={form.estado} onValueChange={v => setForm(f => ({ ...f, estado: v }))}>
+                <SelectTrigger className="text-xs sm:text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todo">Pendiente</SelectItem>
+                  <SelectItem value="in_progress">En progreso</SelectItem>
+                  <SelectItem value="done">Hecho</SelectItem>
+                </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="titulo">Título *</Label>
-              <Input id="titulo" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} placeholder="Ej: Diseñar landing page" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="descripcion">Descripción</Label>
-                <VoiceRecorder empresa={selectedEmpresaName} disabled={!form.id_proyecto} onResult={handleVoiceResult} />
-              </div>
-              <Textarea id="descripcion" value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} placeholder="Describe la tarea o usa el micrófono..." rows={3} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="entrega">Entrega programada</Label>
-                <Input id="entrega" type="date" value={form.entrega_programada} onChange={e => setForm(f => ({ ...f, entrega_programada: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="estado">Estado</Label>
-                <Select value={form.estado} onValueChange={v => setForm(f => ({ ...f, estado: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todo">Pendiente</SelectItem>
-                    <SelectItem value="in_progress">En progreso</SelectItem>
-                    <SelectItem value="done">Hecho</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
-              <button type="submit" disabled={createMutation.isPending} className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
-                {createMutation.isPending ? 'Creando...' : 'Crear tarea'}
-              </button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+          </div>
+          <div className="flex justify-end gap-2 pt-1 sm:pt-2">
+            <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 rounded-lg text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
+            <button type="submit" disabled={createMutation.isPending} className="px-3 sm:px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+              {createMutation.isPending ? 'Creando...' : 'Crear tarea'}
+            </button>
+          </div>
+        </form>
+      </ResponsiveModal>
 
-      {/* Dialog Tarea Rápida */}
-      <Dialog open={quickOpen} onOpenChange={setQuickOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-warning" />
-              Tarea rápida
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleQuickSubmit} className="space-y-4 mt-2">
-            <div className="space-y-2">
-              <Label>Proyecto *</Label>
-              <Select value={quickForm.id_proyecto} onValueChange={v => setQuickForm(f => ({ ...f, id_proyecto: v }))}>
-                <SelectTrigger><SelectValue placeholder="Selecciona un proyecto" /></SelectTrigger>
-                <SelectContent>{proyectos?.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre_empresa}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Descripción por voz</Label>
-              {!quickForm.descripcion ? (
-                <div className="flex items-center justify-center py-6 rounded-lg border border-dashed border-border bg-muted/30">
-                  <div className="flex flex-col items-center gap-3">
-                    <VoiceRecorder empresa={quickEmpresaName} disabled={!quickForm.id_proyecto} onResult={handleQuickVoiceResult} />
-                    <span className="text-xs text-muted-foreground">
-                      {quickForm.id_proyecto ? 'Toca el micrófono para dictar' : 'Selecciona un proyecto primero'}
-                    </span>
-                  </div>
+      {/* Tarea Rápida */}
+      <ResponsiveModal open={quickOpen} onOpenChange={setQuickOpen} title="Tarea rápida" titleIcon={<Zap className="w-4 h-4 text-warning" />}>
+        <form onSubmit={handleQuickSubmit} className="space-y-3 sm:space-y-4 mt-2">
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label className="text-xs sm:text-sm">Proyecto *</Label>
+            <Select value={quickForm.id_proyecto} onValueChange={v => setQuickForm(f => ({ ...f, id_proyecto: v }))}>
+              <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="Selecciona un proyecto" /></SelectTrigger>
+              <SelectContent>{proyectos?.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre_empresa}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label className="text-xs sm:text-sm">Descripción por voz</Label>
+            {!quickForm.descripcion ? (
+              <div className="flex items-center justify-center py-5 sm:py-6 rounded-lg border border-dashed border-border bg-muted/30">
+                <div className="flex flex-col items-center gap-2 sm:gap-3">
+                  <VoiceRecorder empresa={quickEmpresaName} disabled={!quickForm.id_proyecto} onResult={handleQuickVoiceResult} />
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">
+                    {quickForm.id_proyecto ? 'Toca el micrófono para dictar' : 'Selecciona un proyecto primero'}
+                  </span>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="rounded-lg bg-muted/30 border border-border p-3">
-                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Título generado</span>
-                    <p className="text-sm text-foreground mt-1">{quickForm.titulo}</p>
-                  </div>
-                  <Textarea
-                    value={quickForm.descripcion}
-                    onChange={e => setQuickForm(f => ({ ...f, descripcion: e.target.value }))}
-                    placeholder="Descripción..."
-                    rows={4}
-                  />
-                  <div className="flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() => setQuickForm(f => ({ ...f, titulo: '', descripcion: '' }))}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      Volver a grabar
-                    </button>
-                    <VoiceRecorder empresa={quickEmpresaName} disabled={!quickForm.id_proyecto} onResult={handleQuickVoiceResult} />
-                  </div>
+              </div>
+            ) : (
+              <div className="space-y-2 sm:space-y-3">
+                <div className="rounded-lg bg-muted/30 border border-border p-2.5 sm:p-3">
+                  <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Título generado</span>
+                  <p className="text-xs sm:text-sm text-foreground mt-1">{quickForm.titulo}</p>
                 </div>
-              )}
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={() => { setQuickOpen(false); setQuickForm({ titulo: '', descripcion: '', id_proyecto: '' }); }} className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
-              <button
-                type="submit"
-                disabled={createMutation.isPending || !quickForm.titulo}
-                className="px-4 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-              >
-                {createMutation.isPending ? 'Creando...' : 'Crear tarea'}
-              </button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+                <Textarea
+                  value={quickForm.descripcion}
+                  onChange={e => setQuickForm(f => ({ ...f, descripcion: e.target.value }))}
+                  placeholder="Descripción..."
+                  rows={3}
+                  className="text-xs sm:text-sm"
+                />
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setQuickForm(f => ({ ...f, titulo: '', descripcion: '' }))}
+                    className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Volver a grabar
+                  </button>
+                  <VoiceRecorder empresa={quickEmpresaName} disabled={!quickForm.id_proyecto} onResult={handleQuickVoiceResult} />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex justify-end gap-2 pt-1 sm:pt-2">
+            <button type="button" onClick={() => { setQuickOpen(false); setQuickForm({ titulo: '', descripcion: '', id_proyecto: '' }); }} className="px-3 py-1.5 rounded-lg text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
+            <button
+              type="submit"
+              disabled={createMutation.isPending || !quickForm.titulo}
+              className="px-3 sm:px-4 py-1.5 rounded-lg bg-warning text-warning-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {createMutation.isPending ? 'Creando...' : 'Crear tarea'}
+            </button>
+          </div>
+        </form>
+      </ResponsiveModal>
     </div>
   );
 };
