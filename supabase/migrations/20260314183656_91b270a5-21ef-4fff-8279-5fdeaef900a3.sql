@@ -1,0 +1,1 @@
+ALTER TABLE public.proyectos ADD COLUMN progreso integer NOT NULL DEFAULT 0;
