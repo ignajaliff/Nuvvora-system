@@ -1,8 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { api } from '@/lib/mock-data';
 import { queryConfig } from '@/providers/PrefetchProvider';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonTable } from '@/components/shared/Skeleton';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+};
+
+const stagger = {
+  show: { transition: { staggerChildren: 0.1 } },
+};
 
 const TasksPage = () => {
   const { data: tasks, isLoading } = useQuery({ queryKey: ['tasks'], queryFn: api.getTasks, ...queryConfig });
@@ -28,30 +38,32 @@ const TasksPage = () => {
       {isLoading ? (
         <SkeletonTable rows={7} cols={5} />
       ) : (
-        <div className="space-y-6">
+        <motion.div className="space-y-6" initial="hidden" animate="show" variants={stagger}>
           {Object.entries(groupedTasks).map(([status, statusTasks]) => (
-            <div key={status}>
+            <motion.div key={status} variants={fadeUp}>
               <div className="flex items-center gap-2 mb-2">
                 <StatusBadge status={status as 'in_progress' | 'todo' | 'done'} />
                 <span className="text-[11px] text-muted-foreground font-mono-tabular">{statusTasks.length}</span>
               </div>
-              <div className="rounded-xl shadow-card overflow-hidden">
-                <table className="w-full">
-                  <tbody>
-                    {statusTasks.map(task => (
-                      <tr key={task.id} className="border-b border-border-subtle last:border-0 hover:bg-muted/50 transition-colors duration-150 cursor-pointer">
-                        <td className="py-2.5 px-4 text-ui text-foreground">{task.title}</td>
-                        <td className="py-2.5 px-4 text-ui text-muted-foreground">{task.projectName}</td>
-                        <td className="py-2.5 px-4"><StatusBadge status={task.priority} /></td>
-                        <td className="py-2.5 px-4 font-mono-tabular text-[12px] text-muted-foreground">{task.dueDate}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="glass-card overflow-hidden">
+                <div className="relative z-10">
+                  <table className="w-full">
+                    <tbody>
+                      {statusTasks.map(task => (
+                        <tr key={task.id} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer">
+                          <td className="py-3 px-4 text-ui text-foreground">{task.title}</td>
+                          <td className="py-3 px-4 text-ui text-muted-foreground">{task.projectName}</td>
+                          <td className="py-3 px-4"><StatusBadge status={task.priority} /></td>
+                          <td className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground">{task.dueDate}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );
