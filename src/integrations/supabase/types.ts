@@ -96,6 +96,33 @@ export type Database = {
           },
         ]
       }
+      gastos: {
+        Row: {
+          categoria: string
+          created_at: string
+          descripcion: string
+          fecha_gasto: string
+          id: string
+          monto: number
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          fecha_gasto?: string
+          id?: string
+          monto?: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          fecha_gasto?: string
+          id?: string
+          monto?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string
