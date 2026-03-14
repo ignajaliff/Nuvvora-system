@@ -31,8 +31,15 @@ const queryClient = new QueryClient({
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
+  const [splashDone, setSplashDone] = useState(false);
+
   if (loading) return null;
   if (!session) return <Navigate to="/login" replace />;
+
+  if (!splashDone) {
+    return <SplashScreen onComplete={() => setSplashDone(true)} />;
+  }
+
   return <>{children}</>;
 };
 
