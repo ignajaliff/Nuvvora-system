@@ -10,6 +10,7 @@ import ClientsPage from "@/features/clients/ClientsPage";
 import ClientDetailPage from "@/features/clients/ClientDetailPage";
 import ProjectsPage from "@/features/projects/ProjectsPage";
 import TasksPage from "@/features/tasks/TasksPage";
+import TaskDetailPage from "@/features/tasks/TaskDetailPage";
 import NotesPage from "@/features/notes/NotesPage";
 import BillingPage from "@/features/billing/BillingPage";
 import NotFound from "./pages/NotFound";
