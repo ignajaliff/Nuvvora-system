@@ -475,18 +475,18 @@ function PaymentsSection({ projectId }: { projectId: string }) {
   const feeInicialRestante = feeInicialTotal - feeInicialPagado;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <CreditCard size={16} className="text-muted-foreground" />
+        <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+          <CreditCard size={14} className="text-muted-foreground" />
           Historial de pagos
         </h2>
         <button
           onClick={() => setShowForm(true)}
-          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity inline-flex items-center gap-1.5"
+          className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] sm:text-sm font-medium hover:opacity-90 transition-opacity inline-flex items-center gap-1"
         >
-          <Plus size={16} />
-          Nuevo registro
+          <Plus size={14} />
+          Nuevo
         </button>
       </div>
 
@@ -500,41 +500,41 @@ function PaymentsSection({ projectId }: { projectId: string }) {
       )}
 
       {/* Fee Inicial section */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Fee Inicial</h3>
+      <div className="space-y-2 sm:space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground">Fee Inicial</h3>
           {contrato && (
-            <div className="flex items-center gap-3 text-xs font-mono">
+            <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-mono flex-wrap">
               <span className="text-muted-foreground">Total: <span className="text-foreground">${feeInicialTotal.toLocaleString()}</span></span>
               <span className="text-muted-foreground">Pagado: <span className="text-foreground">${feeInicialPagado.toLocaleString()}</span></span>
               <span className={cn('font-semibold', feeInicialRestante > 0 ? 'text-warning' : 'text-success')}>
-                Restante: ${Math.max(0, feeInicialRestante).toLocaleString()}
+                Rest: ${Math.max(0, feeInicialRestante).toLocaleString()}
               </span>
             </div>
           )}
         </div>
         {feeInicialItems.length === 0 ? (
-          <div className="glass-card p-6 text-center">
-            <p className="text-sm text-muted-foreground">No hay pagos de Fee Inicial registrados.</p>
+          <div className="glass-card p-4 sm:p-6 text-center">
+            <p className="text-xs sm:text-sm text-muted-foreground">No hay pagos de Fee Inicial registrados.</p>
           </div>
         ) : (
           <div className="grid gap-2">
             {feeInicialItems.map(f => (
-              <div key={f.id} className="glass-card p-4 border-l-4 border-l-primary/60">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{f.concepto}</p>
-                    <p className="text-xs text-muted-foreground font-mono mt-0.5">
-                      Emitido: {f.fecha_emision} {f.fecha_pago ? `• Pagado: ${f.fecha_pago}` : ''}
+              <div key={f.id} className="glass-card p-3 sm:p-4 border-l-4 border-l-primary/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-foreground truncate">{f.concepto}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-mono mt-0.5">
+                      {f.fecha_emision} {f.fecha_pago ? `• ${f.fecha_pago}` : ''}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm font-semibold text-foreground">${Number(f.monto).toLocaleString()}</span>
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <span className="font-mono text-xs sm:text-sm font-semibold text-foreground">${Number(f.monto).toLocaleString()}</span>
                     <StatusBadge status={f.estado as any} />
                     {(f.estado === 'pendiente' || f.estado === 'vencido') && (
                       <button
                         onClick={() => updateStatus.mutate({ id: f.id, newStatus: 'pagado' })}
-                        className="text-[11px] px-2 py-0.5 rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
+                        className="text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
                       >
                         Pagado
                       </button>
@@ -548,30 +548,30 @@ function PaymentsSection({ projectId }: { projectId: string }) {
       </div>
 
       {/* Abono Mensual section */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-foreground">Abono Mensual</h3>
+      <div className="space-y-2 sm:space-y-3">
+        <h3 className="text-xs sm:text-sm font-semibold text-foreground">Abono Mensual</h3>
         {abonoItems.length === 0 ? (
-          <div className="glass-card p-6 text-center">
-            <p className="text-sm text-muted-foreground">No hay pagos de Abono Mensual registrados.</p>
+          <div className="glass-card p-4 sm:p-6 text-center">
+            <p className="text-xs sm:text-sm text-muted-foreground">No hay pagos de Abono Mensual registrados.</p>
           </div>
         ) : (
           <div className="grid gap-2">
             {abonoItems.map(f => (
-              <div key={f.id} className="glass-card p-4 border-l-4 border-l-accent/60">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{f.concepto}</p>
-                    <p className="text-xs text-muted-foreground font-mono mt-0.5">
-                      Emitido: {f.fecha_emision} {f.fecha_pago ? `• Pagado: ${f.fecha_pago}` : ''}
+              <div key={f.id} className="glass-card p-3 sm:p-4 border-l-4 border-l-accent/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-foreground truncate">{f.concepto}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-mono mt-0.5">
+                      {f.fecha_emision} {f.fecha_pago ? `• ${f.fecha_pago}` : ''}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm font-semibold text-foreground">${Number(f.monto).toLocaleString()}</span>
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <span className="font-mono text-xs sm:text-sm font-semibold text-foreground">${Number(f.monto).toLocaleString()}</span>
                     <StatusBadge status={f.estado as any} />
                     {(f.estado === 'pendiente' || f.estado === 'vencido') && (
                       <button
                         onClick={() => updateStatus.mutate({ id: f.id, newStatus: 'pagado' })}
-                        className="text-[11px] px-2 py-0.5 rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
+                        className="text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
                       >
                         Pagado
                       </button>
