@@ -7,6 +7,8 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
 import { Users, CheckSquare, Eye, EyeOff } from 'lucide-react';
 
+const easeOut = [0.22, 1, 0.36, 1] as const;
+
 const heroStagger = {
   hidden: {},
   show: {
@@ -21,7 +23,7 @@ const cardReveal = {
     y: 0,
     scale: 1,
     filter: 'blur(0px)',
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.7, ease: easeOut },
   },
 };
 
@@ -30,7 +32,7 @@ const sectionReveal = (delay: number) => ({
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay },
+    transition: { duration: 0.6, ease: easeOut, delay },
   },
 });
 
