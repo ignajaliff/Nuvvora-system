@@ -335,32 +335,32 @@ function ContratoTab({ projectId }: { projectId: string }) {
 
   if (editing) {
     return (
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-foreground">{contrato ? 'Editar contrato' : 'Nuevo contrato'}</h3>
-        <div className="grid grid-cols-2 gap-4">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <h3 className="text-xs sm:text-sm font-semibold text-foreground">{contrato ? 'Editar contrato' : 'Nuevo contrato'}</h3>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fee inicial</label>
-            <input type="number" value={form.fee_inicial} onChange={e => setForm(f => ({ ...f, fee_inicial: e.target.value }))} placeholder="0.00" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+            <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fee inicial</label>
+            <input type="number" value={form.fee_inicial} onChange={e => setForm(f => ({ ...f, fee_inicial: e.target.value }))} placeholder="0.00" className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground" />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Abono mensual</label>
-            <input type="number" value={form.abono_mensual} onChange={e => setForm(f => ({ ...f, abono_mensual: e.target.value }))} placeholder="0.00" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+            <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Abono mensual</label>
+            <input type="number" value={form.abono_mensual} onChange={e => setForm(f => ({ ...f, abono_mensual: e.target.value }))} placeholder="0.00" className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground" />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Día facturación</label>
-            <input type="number" min="1" max="28" value={form.dia_facturacion} onChange={e => setForm(f => ({ ...f, dia_facturacion: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+            <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Día facturación</label>
+            <input type="number" min="1" max="28" value={form.dia_facturacion} onChange={e => setForm(f => ({ ...f, dia_facturacion: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground" />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Moneda</label>
-            <select value={form.moneda} onChange={e => setForm(f => ({ ...f, moneda: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground">
+            <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Moneda</label>
+            <select value={form.moneda} onChange={e => setForm(f => ({ ...f, moneda: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground">
               <option value="USD">USD</option>
               <option value="ARS">ARS</option>
               <option value="EUR">EUR</option>
             </select>
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Estado</label>
-            <select value={form.estado_contrato} onChange={e => setForm(f => ({ ...f, estado_contrato: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground">
+            <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Estado</label>
+            <select value={form.estado_contrato} onChange={e => setForm(f => ({ ...f, estado_contrato: e.target.value }))} className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground">
               <option value="propuesta">Propuesta</option>
               <option value="activo">Activo</option>
               <option value="suspendido">Suspendido</option>
@@ -368,8 +368,8 @@ function ContratoTab({ projectId }: { projectId: string }) {
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button onClick={() => setEditing(false)} className="px-4 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
-          <button onClick={() => upsert.mutate()} disabled={upsert.isPending} className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+          <button onClick={() => setEditing(false)} className="px-3 sm:px-4 py-1.5 rounded-lg border border-border text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
+          <button onClick={() => upsert.mutate()} disabled={upsert.isPending} className="px-3 sm:px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
             {upsert.isPending ? 'Guardando...' : 'Guardar'}
           </button>
         </div>
