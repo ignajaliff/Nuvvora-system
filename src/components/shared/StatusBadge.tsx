@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high' | 'development' | 'maintenance' | 'staging' | 'active';
+type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high' | 'development' | 'maintenance' | 'staging' | 'pendiente' | 'pagado' | 'vencido' | 'propuesta' | 'activo' | 'suspendido';
 
 const statusStyles: Record<StatusType, string> = {
   active: 'bg-success/10 text-success',
@@ -20,6 +20,12 @@ const statusStyles: Record<StatusType, string> = {
   development: 'bg-primary/10 text-primary',
   maintenance: 'bg-success/10 text-success',
   staging: 'bg-warning/10 text-warning',
+  pendiente: 'bg-warning/10 text-warning',
+  pagado: 'bg-success/10 text-success',
+  vencido: 'bg-destructive/10 text-destructive',
+  propuesta: 'bg-muted text-muted-foreground',
+  activo: 'bg-success/10 text-success',
+  suspendido: 'bg-destructive/10 text-destructive',
 };
 
 const statusLabels: Record<StatusType, string> = {
@@ -40,6 +46,12 @@ const statusLabels: Record<StatusType, string> = {
   development: 'En Desarrollo',
   maintenance: 'En Mantenimiento',
   staging: 'Staging / Testing',
+  pendiente: 'Pendiente',
+  pagado: 'Pagado',
+  vencido: 'Vencido',
+  propuesta: 'Propuesta',
+  activo: 'Activo',
+  suspendido: 'Suspendido',
 };
 
 export const StatusBadge = ({ status, className }: { status: StatusType; className?: string }) => (

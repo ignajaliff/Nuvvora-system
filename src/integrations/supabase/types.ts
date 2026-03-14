@@ -14,6 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
+      contratos_proyecto: {
+        Row: {
+          abono_mensual: number
+          created_at: string
+          dia_facturacion: number
+          estado_contrato: string
+          fee_inicial: number
+          id: string
+          id_proyecto: string
+          moneda: string
+        }
+        Insert: {
+          abono_mensual?: number
+          created_at?: string
+          dia_facturacion?: number
+          estado_contrato?: string
+          fee_inicial?: number
+          id?: string
+          id_proyecto: string
+          moneda?: string
+        }
+        Update: {
+          abono_mensual?: number
+          created_at?: string
+          dia_facturacion?: number
+          estado_contrato?: string
+          fee_inicial?: number
+          id?: string
+          id_proyecto?: string
+          moneda?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_proyecto_id_proyecto_fkey"
+            columns: ["id_proyecto"]
+            isOneToOne: true
+            referencedRelation: "proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facturacion: {
+        Row: {
+          concepto: string
+          created_at: string
+          estado: string
+          fecha_emision: string
+          fecha_pago: string | null
+          id: string
+          id_proyecto: string
+          monto: number
+        }
+        Insert: {
+          concepto?: string
+          created_at?: string
+          estado?: string
+          fecha_emision?: string
+          fecha_pago?: string | null
+          id?: string
+          id_proyecto: string
+          monto?: number
+        }
+        Update: {
+          concepto?: string
+          created_at?: string
+          estado?: string
+          fecha_emision?: string
+          fecha_pago?: string | null
+          id?: string
+          id_proyecto?: string
+          monto?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facturacion_id_proyecto_fkey"
+            columns: ["id_proyecto"]
+            isOneToOne: false
+            referencedRelation: "proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           id: string
