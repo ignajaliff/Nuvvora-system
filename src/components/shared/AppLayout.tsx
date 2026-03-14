@@ -1,11 +1,11 @@
 import { ReactNode } from 'react';
-import { AppSidebar } from './AppSidebar';
+import { AppNavbar } from './AppNavbar';
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="min-h-screen bg-background">
-      <AppSidebar />
-      <main className="ml-[var(--sidebar-width)] min-h-screen">
+      <AppNavbar />
+      <main>
         <div className="max-w-[1200px] mx-auto px-8 py-8">
           {children}
         </div>
