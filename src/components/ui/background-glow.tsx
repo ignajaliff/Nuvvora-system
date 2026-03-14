@@ -11,7 +11,7 @@ export const BackgroundGlow = ({ children, className }: { children?: React.React
 
       {/* Cyan accent */}
       <div
-        className="absolute top-[10%] right-[5%] h-[500px] w-[500px] rounded-full opacity-25 blur-[120px]"
+        className="absolute top-[10%] right-[5%] h-[500px] w-[500px] rounded-full opacity-40 blur-[120px]"
         style={{ background: '#67E8F9' }}
       />
 
