@@ -24,19 +24,11 @@ export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center gap-3"
           >
-            {/* Logo icon */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-primary">
-                <path
-                  d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            {/* Brand name */}
+            <img
+              src="/pwa-192x192.png"
+              alt="Nuvvora"
+              className="h-10 w-10 rounded-xl"
+            />
             <span
               className="text-2xl text-foreground"
               style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}

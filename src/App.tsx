@@ -31,23 +31,22 @@ const queryClient = new QueryClient({
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
-  const [splashDone, setSplashDone] = useState(false);
-
   if (loading) return null;
   if (!session) return <Navigate to="/login" replace />;
-
-  if (!splashDone) {
-    return <SplashScreen onComplete={() => setSplashDone(true)} />;
-  }
-
   return <>{children}</>;
 };
 
 const AppRoutes = () => {
   const location = useLocation();
   const { session, loading } = useAuth();
+  const [splashDone, setSplashDone] = useState(false);
 
   if (loading) return null;
+
+  // Show splash only once when authenticated
+  if (session && !splashDone) {
+    return <SplashScreen onComplete={() => setSplashDone(true)} />;
+  }
 
   return (
     <Routes location={location} key={location.pathname}>
