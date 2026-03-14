@@ -18,7 +18,6 @@ import {
 } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
 import {
   Dialog,
   DialogContent,
@@ -37,6 +36,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { GripVertical } from 'lucide-react';
+import { VoiceRecorder } from './components/VoiceRecorder';
 
 /* ── Draggable task row ── */
 const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void }) => {
@@ -100,6 +100,12 @@ const OverlayRow = ({ task }: { task: any }) => (
 );
 
 const STATUS_ORDER = ['in_progress', 'todo', 'done'] as const;
+
+const getDefaultDeliveryDate = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 2);
+  return d.toISOString().split('T')[0];
+};
 
 const TasksPage = () => {
   const queryClient = useQueryClient();
@@ -195,6 +201,18 @@ const TasksPage = () => {
     }
   };
 
+  const selectedEmpresaName = proyectos?.find(p => p.id === form.id_proyecto)?.nombre_empresa ?? '';
+
+  const handleVoiceResult = (result: { titulo: string; descripcion: string }) => {
+    setForm(f => ({
+      ...f,
+      titulo: result.titulo,
+      descripcion: result.descripcion,
+      estado: 'todo',
+      entrega_programada: getDefaultDeliveryDate(),
+    }));
+  };
+
   const groupedTasks = {
     in_progress: tasks?.filter(t => t.estado === 'in_progress') ?? [],
     todo: tasks?.filter(t => t.estado === 'todo') ?? [],
@@ -267,10 +285,6 @@ const TasksPage = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
             <div className="space-y-2">
-              <Label htmlFor="titulo">Título *</Label>
-              <Input id="titulo" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} placeholder="Ej: Diseñar landing page" />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="proyecto">Proyecto *</Label>
               <Select value={form.id_proyecto} onValueChange={v => setForm(f => ({ ...f, id_proyecto: v }))}>
                 <SelectTrigger><SelectValue placeholder="Selecciona un proyecto" /></SelectTrigger>
@@ -282,8 +296,19 @@ const TasksPage = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="descripcion">Descripción</Label>
-              <Textarea id="descripcion" value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} placeholder="Describe la tarea..." rows={3} />
+              <Label htmlFor="titulo">Título *</Label>
+              <Input id="titulo" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} placeholder="Ej: Diseñar landing page" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="descripcion">Descripción</Label>
+                <VoiceRecorder
+                  empresa={selectedEmpresaName}
+                  disabled={!form.id_proyecto}
+                  onResult={handleVoiceResult}
+                />
+              </div>
+              <Textarea id="descripcion" value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} placeholder="Describe la tarea o usa el micrófono para dictarla..." rows={3} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
