@@ -5,8 +5,10 @@ export interface Client {
   name: string;
   email: string;
   company: string;
-  status: 'active' | 'inactive';
+  status: 'development' | 'maintenance' | 'staging';
   createdAt: string;
+  stack: string;
+  version: string;
 }
 
 export interface Project {
