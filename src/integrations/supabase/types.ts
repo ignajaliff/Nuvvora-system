@@ -50,6 +50,47 @@ export type Database = {
         }
         Relationships: []
       }
+      tareas: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          entrega_programada: string | null
+          estado: string
+          fecha_registro: string
+          id: string
+          id_proyecto: string
+          titulo: string
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          entrega_programada?: string | null
+          estado?: string
+          fecha_registro?: string
+          id?: string
+          id_proyecto: string
+          titulo: string
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          entrega_programada?: string | null
+          estado?: string
+          fecha_registro?: string
+          id?: string
+          id_proyecto?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tareas_id_proyecto_fkey"
+            columns: ["id_proyecto"]
+            isOneToOne: false
+            referencedRelation: "proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

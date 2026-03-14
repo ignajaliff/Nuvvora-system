@@ -1,18 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { api } from '@/lib/mock-data';
-import { queryConfig } from '@/providers/PrefetchProvider';
+import { supabase } from '@/integrations/supabase/client';
 import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonTable } from '@/components/shared/Skeleton';
 
 const TasksPage = () => {
-  const { data: tasks, isLoading } = useQuery({ queryKey: ['tasks'], queryFn: api.getTasks, ...queryConfig });
+  const { data: tasks, isLoading } = useQuery({
+    queryKey: ['tareas'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tareas')
+        .select('*, proyectos(nombre_empresa)')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const groupedTasks = {
-    in_progress: tasks?.filter(t => t.status === 'in_progress') ?? [],
-    todo: tasks?.filter(t => t.status === 'todo') ?? [],
-    done: tasks?.filter(t => t.status === 'done') ?? [],
+    in_progress: tasks?.filter(t => t.estado === 'in_progress') ?? [],
+    todo: tasks?.filter(t => t.estado === 'todo') ?? [],
+    done: tasks?.filter(t => t.estado === 'done') ?? [],
   };
 
   return (
@@ -41,14 +50,24 @@ const TasksPage = () => {
                 <div className="relative z-10">
                   <table className="w-full">
                     <tbody>
-                      {statusTasks.map(task => (
-                        <tr key={task.id} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer">
-                          <td className="py-3 px-4 text-ui text-foreground">{task.title}</td>
-                          <td className="py-3 px-4 text-ui text-muted-foreground">{task.projectName}</td>
-                          <td className="py-3 px-4"><StatusBadge status={task.priority} /></td>
-                          <td className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground">{task.dueDate}</td>
+                      {statusTasks.length === 0 ? (
+                        <tr>
+                          <td className="py-6 px-4 text-center text-sm text-muted-foreground" colSpan={4}>
+                            Sin tareas en esta categoría
+                          </td>
                         </tr>
-                      ))}
+                      ) : (
+                        statusTasks.map(task => (
+                          <tr key={task.id} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer">
+                            <td className="py-3 px-4 text-ui text-foreground">{task.titulo}</td>
+                            <td className="py-3 px-4 text-ui text-muted-foreground">{(task.proyectos as any)?.nombre_empresa ?? '—'}</td>
+                            <td className="py-3 px-4"><StatusBadge status={task.estado as any} /></td>
+                            <td className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground">
+                              {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES') : '—'}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
