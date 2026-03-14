@@ -109,6 +109,32 @@ const ClientDetailPage = () => {
               ID: {client.id.slice(0, 8).toUpperCase()}
             </p>
           </div>
+
+          {/* Project links */}
+          {((client as any).link1 || (client as any).link2) && (
+            <div className="flex items-center gap-2 shrink-0">
+              {(client as any).link1 && (
+                <a
+                  href={(client as any).link1}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  Ver Proyecto
+                </a>
+              )}
+              {(client as any).link2 && (
+                <a
+                  href={(client as any).link2}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  Ver Proyecto (2)
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Tabs */}

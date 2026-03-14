@@ -55,6 +55,8 @@ const emptyForm = {
   cliente_desde: new Date().toISOString().split('T')[0],
   stack: '',
   version: '1.0.0',
+  link1: '',
+  link2: '',
 };
 
 const ClientsPage = () => {
