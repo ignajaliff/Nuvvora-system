@@ -17,6 +17,7 @@ const navItems: { to: string; label: string; icon: LucideIcon }[] = [
 export const AppNavbar = () => {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
+  const { signOut } = useAuth();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
