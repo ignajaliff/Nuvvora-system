@@ -378,33 +378,33 @@ function ContratoTab({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="glass-card p-6 space-y-5">
+    <div className="glass-card p-4 sm:p-6 space-y-4 sm:space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <FileText size={16} className="text-muted-foreground" />
+        <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+          <FileText size={14} className="text-muted-foreground" />
           Contrato
         </h2>
         <div className="flex items-center gap-2">
           <StatusBadge status={contrato.estado_contrato as any} />
-          <button onClick={startEdit} className="text-[11px] px-2 py-0.5 rounded bg-muted text-muted-foreground hover:text-foreground transition-colors">Editar</button>
+          <button onClick={startEdit} className="text-[10px] sm:text-[11px] px-2 py-0.5 rounded bg-muted text-muted-foreground hover:text-foreground transition-colors">Editar</button>
         </div>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fee inicial</p>
-          <p className="text-sm text-foreground font-mono mt-1">${Number(contrato.fee_inicial).toLocaleString()}</p>
+          <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fee inicial</p>
+          <p className="text-xs sm:text-sm text-foreground font-mono mt-1">${Number(contrato.fee_inicial).toLocaleString()}</p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Abono mensual</p>
-          <p className="text-sm text-foreground font-mono mt-1">${Number(contrato.abono_mensual).toLocaleString()}</p>
+          <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Abono mensual</p>
+          <p className="text-xs sm:text-sm text-foreground font-mono mt-1">${Number(contrato.abono_mensual).toLocaleString()}</p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Día facturación</p>
-          <p className="text-sm text-foreground font-mono mt-1">{contrato.dia_facturacion}</p>
+          <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Día facturación</p>
+          <p className="text-xs sm:text-sm text-foreground font-mono mt-1">{contrato.dia_facturacion}</p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Moneda</p>
-          <p className="text-sm text-foreground font-mono mt-1">{contrato.moneda}</p>
+          <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Moneda</p>
+          <p className="text-xs sm:text-sm text-foreground font-mono mt-1">{contrato.moneda}</p>
         </div>
       </div>
     </div>
