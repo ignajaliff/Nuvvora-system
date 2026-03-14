@@ -151,6 +151,21 @@ const ClientDetailPage = () => {
 
 /* ── General Tab ── */
 function GeneralTab({ client }: { client: any }) {
+  const queryClient = useQueryClient();
+  const [progreso, setProgreso] = useState<number>(client.progreso ?? 0);
+  const [saving, setSaving] = useState(false);
+
+  const handleProgresoChange = async (value: number) => {
+    setProgreso(value);
+    setSaving(true);
+    const { error } = await supabase.from('proyectos').update({ progreso: value } as any).eq('id', client.id);
+    setSaving(false);
+    if (!error) {
+      queryClient.invalidateQueries({ queryKey: ['proyecto', client.id] });
+      queryClient.invalidateQueries({ queryKey: ['proyectos'] });
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
       {/* Organization Details - takes more space */}
@@ -177,6 +192,25 @@ function GeneralTab({ client }: { client: any }) {
             <div className="mt-1">
               <StatusBadge status={client.estado as any} />
             </div>
+          </div>
+          {/* Progreso del proyecto */}
+          <div className="col-span-2">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Progreso del proyecto</p>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={progreso}
+                onChange={e => handleProgresoChange(Number(e.target.value))}
+                className="flex-1 h-2 rounded-full appearance-none cursor-pointer accent-primary bg-foreground/5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md"
+              />
+              <span className="text-sm font-mono font-medium text-foreground min-w-[3ch] text-right">
+                {progreso}%
+              </span>
+            </div>
+            {saving && <p className="text-[10px] text-muted-foreground mt-1">Guardando...</p>}
           </div>
         </div>
       </div>
