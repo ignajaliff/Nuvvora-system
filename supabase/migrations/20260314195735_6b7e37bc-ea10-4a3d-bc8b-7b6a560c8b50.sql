@@ -1,0 +1,1 @@
+ALTER TABLE public.proyectos ADD COLUMN link1 text DEFAULT NULL, ADD COLUMN link2 text DEFAULT NULL;
