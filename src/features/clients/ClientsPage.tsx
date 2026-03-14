@@ -60,6 +60,7 @@ const emptyForm = {
 const ClientsPage = () => {
   const { data: clients, isLoading } = useQuery({ queryKey: ['proyectos'], queryFn: fetchProyectos });
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   // Create dialog

@@ -32,6 +32,7 @@ const AppRoutes = () => {
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/clients" element={<ClientsPage />} />
+          <Route path="/clients/:id" element={<ClientDetailPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/notes" element={<NotesPage />} />
