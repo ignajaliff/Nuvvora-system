@@ -644,48 +644,48 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
   const isValid = monto && parseFloat(monto) > 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 space-y-4">
+    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-4 sm:p-5 space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">Nuevo registro de pago</h3>
+        <h3 className="text-xs sm:text-sm font-semibold text-foreground">Nuevo registro de pago</h3>
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-          <X size={16} />
+          <X size={14} />
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div>
-          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Concepto</label>
+          <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Concepto</label>
           <select
             value={conceptoType}
             onChange={e => handleConceptChange(e.target.value as 'abono' | 'fee')}
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground"
           >
             <option value="abono">Abono Mensual</option>
             <option value="fee">Fee Inicial</option>
           </select>
-          <p className="text-xs text-muted-foreground mt-1 font-mono">{conceptoText}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 font-mono truncate">{conceptoText}</p>
         </div>
         <div>
-          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Monto</label>
+          <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Monto</label>
           <input
             type="number"
             value={monto}
             onChange={e => setMonto(e.target.value)}
             placeholder="0.00"
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground"
           />
           {conceptoType === 'fee' && contrato && (
-            <p className="text-xs mt-1 font-mono text-warning">
-              Restante después de este pago: ${Math.max(0, feeInicialRestante - (parseFloat(monto) || 0)).toLocaleString()}
+            <p className="text-[10px] sm:text-xs mt-1 font-mono text-warning">
+              Rest: ${Math.max(0, feeInicialRestante - (parseFloat(monto) || 0)).toLocaleString()}
             </p>
           )}
         </div>
         <div>
-          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fecha emisión</label>
+          <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Fecha emisión</label>
           <input
             type="date"
             value={fechaEmision}
             onChange={e => setFechaEmision(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground"
           />
         </div>
       </div>
@@ -693,7 +693,7 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
         <button
           onClick={() => createInvoice.mutate()}
           disabled={!isValid || createInvoice.isPending}
-          className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="px-3 sm:px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {createInvoice.isPending ? 'Creando...' : 'Crear registro'}
         </button>
@@ -707,14 +707,14 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
 /* ── API Vault Tab ── */
 function ApiVaultTab() {
   return (
-    <div className="glass-card p-6">
-      <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-        <KeyRound size={16} className="text-muted-foreground" />
+    <div className="glass-card p-4 sm:p-6">
+      <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+        <KeyRound size={14} className="text-muted-foreground" />
         API Vault
       </h2>
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-muted-foreground text-sm">No hay claves API configuradas.</p>
-        <p className="text-muted-foreground text-xs mt-1">Las claves API se gestionarán aquí.</p>
+      <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+        <p className="text-muted-foreground text-xs sm:text-sm">No hay claves API configuradas.</p>
+        <p className="text-muted-foreground text-[10px] sm:text-xs mt-1">Las claves API se gestionarán aquí.</p>
       </div>
     </div>
   );
@@ -741,14 +741,15 @@ function TareasTab({ projectId }: { projectId: string }) {
 
   return (
     <div className="glass-card overflow-hidden">
-      <div className="p-4 border-b border-border/50 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <ListTodo size={16} className="text-muted-foreground" />
+      <div className="p-3 sm:p-4 border-b border-border/50 flex items-center justify-between">
+        <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+          <ListTodo size={14} className="text-muted-foreground" />
           Tareas del proyecto
         </h2>
-        <span className="text-xs text-muted-foreground font-mono">{tareas?.length ?? 0} tareas</span>
+        <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">{tareas?.length ?? 0} tareas</span>
       </div>
-      <div className="relative z-10">
+      {/* Mobile: card layout, Desktop: table */}
+      <div className="relative z-10 hidden sm:block">
         <table className="w-full">
           <thead>
             <tr className="border-b border-foreground/5">
@@ -781,6 +782,27 @@ function TareasTab({ projectId }: { projectId: string }) {
             )}
           </tbody>
         </table>
+      </div>
+      {/* Mobile card list */}
+      <div className="sm:hidden divide-y divide-foreground/5">
+        {(!tareas || tareas.length === 0) ? (
+          <div className="py-8 text-center text-xs text-muted-foreground">
+            No hay tareas registradas.
+          </div>
+        ) : (
+          tareas.map(task => (
+            <div key={task.id} className="p-3 space-y-1.5">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-medium text-foreground leading-snug">{task.titulo}</p>
+                <StatusBadge status={task.estado as any} />
+              </div>
+              <div className="flex items-center gap-3 text-[10px] font-mono text-muted-foreground">
+                <span>Entrega: {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES') : '—'}</span>
+                <span>{new Date(task.fecha_registro).toLocaleDateString('es-ES')}</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
