@@ -142,8 +142,7 @@ const ClientDetailPage = () => {
       <div className="space-y-5">
         {activeTab === 'general' && <GeneralTab client={client} />}
         {activeTab === 'tareas' && <TareasTab projectId={client.id} />}
-        {activeTab === 'contrato' && <ContratoTab projectId={client.id} />}
-        {activeTab === 'payments' && <PaymentsTab projectId={client.id} />}
+        {activeTab === 'payments' && <PaymentsContractTab projectId={client.id} />}
         {activeTab === 'api' && <ApiVaultTab />}
       </div>
     </motion.div>
