@@ -7,6 +7,9 @@ import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonTable } from '@/components/shared/Skeleton';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+
+const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 const BillingPage = () => {
   const queryClient = useQueryClient();
@@ -26,6 +29,15 @@ const BillingPage = () => {
 
   const totalPagado = facturas?.filter(f => f.estado === 'pagado').reduce((s, f) => s + Number(f.monto), 0) ?? 0;
   const totalPendiente = facturas?.filter(f => f.estado === 'pendiente' || f.estado === 'vencido').reduce((s, f) => s + Number(f.monto), 0) ?? 0;
+
+  // Group by month (from fecha_emision)
+  const groupedByMonth: Record<string, typeof facturas> = {};
+  facturas?.forEach(f => {
+    const d = new Date(f.fecha_emision + 'T00:00:00');
+    const key = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    if (!groupedByMonth[key]) groupedByMonth[key] = [];
+    groupedByMonth[key]!.push(f);
+  });
 
   return (
     <div className="space-y-6">
@@ -68,35 +80,44 @@ const BillingPage = () => {
 
       {isLoading ? (
         <SkeletonTable rows={5} cols={5} />
+      ) : (!facturas || facturas.length === 0) ? (
+        <motion.div initial="hidden" animate="show" variants={fadeUp} className="glass-card p-12 text-center">
+          <p className="text-sm text-muted-foreground">No hay facturas registradas aún.</p>
+        </motion.div>
       ) : (
-        <motion.div initial="hidden" animate="show" variants={fadeUp} className="glass-card overflow-hidden">
-          <div className="relative z-10">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-foreground/5">
-                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Cliente</th>
-                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Concepto</th>
-                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Monto</th>
-                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Estado</th>
-                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Emisión</th>
-                  <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(!facturas || facturas.length === 0) ? (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
-                      No hay facturas registradas aún.
-                    </td>
-                  </tr>
-                ) : (
-                  facturas.map(inv => (
-                    <InvoiceRow key={inv.id} invoice={inv} />
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+        <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
+          {Object.entries(groupedByMonth).map(([monthLabel, items]) => {
+            const monthTotal = items!.reduce((s, f) => s + Number(f.monto), 0);
+            return (
+              <motion.div key={monthLabel} variants={fadeUp} className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <h3 className="text-sm font-semibold text-foreground">{monthLabel}</h3>
+                  <span className="text-xs font-mono text-muted-foreground">${monthTotal.toLocaleString()}</span>
+                </div>
+                <div className="glass-card overflow-hidden">
+                  <div className="relative z-10">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-foreground/5">
+                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Cliente</th>
+                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Concepto</th>
+                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Monto</th>
+                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Estado</th>
+                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Emisión</th>
+                          <th className="text-label text-muted-foreground text-left py-3 px-4 font-semibold">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items!.map(inv => (
+                          <InvoiceRow key={inv.id} invoice={inv} />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       )}
     </div>
@@ -106,6 +127,7 @@ const BillingPage = () => {
 /* ── Invoice Row with actions ── */
 function InvoiceRow({ invoice }: { invoice: any }) {
   const queryClient = useQueryClient();
+  const isFee = invoice.concepto.startsWith('Fee Inicial');
 
   const updateStatus = useMutation({
     mutationFn: async (newStatus: string) => {
@@ -121,11 +143,21 @@ function InvoiceRow({ invoice }: { invoice: any }) {
   });
 
   return (
-    <tr className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150">
+    <tr className={cn(
+      "border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150",
+      isFee && "bg-primary/[0.03]"
+    )}>
       <td className="py-3 px-4 text-ui font-medium text-foreground">
         {invoice.proyectos?.nombre_empresa ?? '—'}
       </td>
-      <td className="py-3 px-4 text-ui text-muted-foreground">{invoice.concepto}</td>
+      <td className="py-3 px-4 text-ui text-muted-foreground">
+        <span className={cn(
+          "inline-flex items-center gap-1.5",
+          isFee && "text-primary font-medium"
+        )}>
+          {invoice.concepto}
+        </span>
+      </td>
       <td className="py-3 px-4 font-mono-tabular text-foreground">${Number(invoice.monto).toLocaleString()}</td>
       <td className="py-3 px-4"><StatusBadge status={invoice.estado as any} /></td>
       <td className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground">{invoice.fecha_emision}</td>

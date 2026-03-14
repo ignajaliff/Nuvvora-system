@@ -367,8 +367,18 @@ function ContratoTab({ projectId }: { projectId: string }) {
   );
 }
 
-/* ── Payments Tab ── */
-function PaymentsTab({ projectId }: { projectId: string }) {
+/* ── Combined Payments & Contract Tab ── */
+function PaymentsContractTab({ projectId }: { projectId: string }) {
+  return (
+    <div className="space-y-6">
+      <ContratoTab projectId={projectId} />
+      <PaymentsSection projectId={projectId} />
+    </div>
+  );
+}
+
+/* ── Payments Section ── */
+function PaymentsSection({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
 
@@ -379,7 +389,7 @@ function PaymentsTab({ projectId }: { projectId: string }) {
         .from('facturacion')
         .select('*')
         .eq('id_proyecto', projectId)
-        .order('fecha_emision', { ascending: false });
+        .order('fecha_emision', { ascending: true });
       if (error) throw error;
       return data;
     },
@@ -559,8 +569,10 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
     }
   };
 
+  // Derive month/year from fechaEmision, not from current date
+  const emisionDate = new Date(fechaEmision + 'T00:00:00');
   const conceptoText = conceptoType === 'abono'
-    ? `Abono Mensual - ${months[now.getMonth()]} ${now.getFullYear()}`
+    ? `Abono Mensual - ${months[emisionDate.getMonth()]} ${emisionDate.getFullYear()}`
     : 'Fee Inicial';
 
   const createInvoice = useMutation({
@@ -576,6 +588,7 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['facturacion', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['facturacion'] });
       toast({ title: 'Registro creado' });
       onClose();
     },
