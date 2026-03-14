@@ -39,8 +39,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AppRoutes = () => {
   const location = useLocation();
   const { session, loading } = useAuth();
+  const [splashDone, setSplashDone] = useState(false);
 
   if (loading) return null;
+
+  // Show splash only once when authenticated
+  if (session && !splashDone) {
+    return <SplashScreen onComplete={() => setSplashDone(true)} />;
+  }
 
   return (
     <Routes location={location} key={location.pathname}>
