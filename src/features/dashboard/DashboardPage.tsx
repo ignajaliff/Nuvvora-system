@@ -3,10 +3,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { fadeUp, stagger } from '@/lib/animations';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonCard } from '@/components/shared/Skeleton';
-import { Users, CheckSquare, Receipt, Eye, EyeOff, Code } from 'lucide-react';
+import { Users, CheckSquare, Eye, EyeOff } from 'lucide-react';
+
+const heroStagger = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.18, delayChildren: 1.2 },
+  },
+};
+
+const cardReveal = {
+  hidden: { opacity: 0, y: 30, scale: 0.96, filter: 'blur(6px)' },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const sectionReveal = (delay: number) => ({
+  hidden: { opacity: 0, y: 24 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay },
+  },
+});
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -74,15 +100,20 @@ const DashboardPage = () => {
 
   return (
     <div className="space-y-8">
-      <div>
+      {/* Header with early fade */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      >
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground text-ui mt-1">Resumen de tu actividad</p>
-      </div>
+      </motion.div>
 
-      {/* Top stat cards */}
-      <motion.div className="grid grid-cols-1 sm:grid-cols-3 gap-4" initial="hidden" animate="show" variants={stagger}>
+      {/* Top stat cards - staggered dramatic reveal */}
+      <motion.div className="grid grid-cols-1 sm:grid-cols-3 gap-4" initial="hidden" animate="show" variants={heroStagger}>
         {/* Clientes activos */}
-        <motion.div variants={fadeUp} className="glass-card p-5">
+        <motion.div variants={cardReveal} className="glass-card p-5">
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <span className="text-label text-muted-foreground">Clientes activos</span>
@@ -95,7 +126,7 @@ const DashboardPage = () => {
         </motion.div>
 
         {/* Tareas pendientes */}
-        <motion.div variants={fadeUp} className="glass-card p-5">
+        <motion.div variants={cardReveal} className="glass-card p-5">
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <span className="text-label text-muted-foreground">Tareas pendientes</span>
@@ -108,7 +139,7 @@ const DashboardPage = () => {
         </motion.div>
 
         {/* Ingresos del mes */}
-        <motion.div variants={fadeUp} className="glass-card p-5">
+        <motion.div variants={cardReveal} className="glass-card p-5">
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <span className="text-label text-muted-foreground">Ingresos del mes</span>
@@ -156,7 +187,7 @@ const DashboardPage = () => {
       </motion.div>
 
       {/* Proyectos en Desarrollo */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp}>
+      <motion.div initial="hidden" animate="show" variants={sectionReveal(2.0)}>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-sm font-medium text-foreground">Proyectos en Desarrollo</h2>
           <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-warning/15 text-warning text-[11px] font-semibold">
@@ -164,11 +195,16 @@ const DashboardPage = () => {
           </span>
         </div>
         {proyectosEnDesarrollo.length > 0 ? (
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" initial="hidden" animate="show" variants={stagger}>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            initial="hidden"
+            animate="show"
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 2.2 } } }}
+          >
             {proyectosEnDesarrollo.map(project => (
               <motion.div
                 key={project.id}
-                variants={fadeUp}
+                variants={cardReveal}
                 className="glass-card p-5 cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => navigate(`/clients/${project.id}`)}
               >
@@ -183,12 +219,12 @@ const DashboardPage = () => {
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
                       <span>Progreso</span>
-                      <span className="font-mono">{(project as any).progreso ?? 0}%</span>
+                      <span className="font-mono">{project.progreso ?? 0}%</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-foreground/5 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-warning transition-all duration-500"
-                        style={{ width: `${(project as any).progreso ?? 0}%` }}
+                        style={{ width: `${project.progreso ?? 0}%` }}
                       />
                     </div>
                   </div>
@@ -204,7 +240,7 @@ const DashboardPage = () => {
       </motion.div>
 
       {/* Tareas Pendientes */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp}>
+      <motion.div initial="hidden" animate="show" variants={sectionReveal(2.6)}>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-sm font-medium text-foreground">Tareas Pendientes</h2>
           <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-primary/15 text-primary text-[11px] font-semibold">
