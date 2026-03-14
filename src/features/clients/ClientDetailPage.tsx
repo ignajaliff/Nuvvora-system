@@ -321,11 +321,11 @@ function ContratoTab({ projectId }: { projectId: string }) {
 
   if (!contrato && !editing) {
     return (
-      <div className="glass-card p-6">
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FileText size={24} className="text-muted-foreground mb-3" />
-          <p className="text-muted-foreground text-sm">No hay contrato configurado.</p>
-          <button onClick={startEdit} className="mt-4 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+      <div className="glass-card p-4 sm:p-6">
+        <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+          <FileText size={20} className="text-muted-foreground mb-2 sm:mb-3" />
+          <p className="text-muted-foreground text-xs sm:text-sm">No hay contrato configurado.</p>
+          <button onClick={startEdit} className="mt-3 sm:mt-4 px-3 sm:px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity">
             Crear contrato
           </button>
         </div>
