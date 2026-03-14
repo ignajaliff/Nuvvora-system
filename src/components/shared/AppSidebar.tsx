@@ -34,14 +34,22 @@ export const AppSidebar = () => {
 
   const handleMouseEnter = (prefetchKey: string | null) => {
     if (!prefetchKey) return;
-    const key = prefetchKey as keyof typeof prefetchMap;
     const state = queryClient.getQueryState([prefetchKey]);
     const isStale = !state || Date.now() - (state.dataUpdatedAt || 0) > 30000;
     if (isStale) {
-      queryClient.prefetchQuery({
-        queryKey: [prefetchKey],
-        queryFn: prefetchMap[key],
-      });
+      const fnMap: Record<string, () => Promise<unknown>> = {
+        clients: api.getClients,
+        projects: api.getProjects,
+        tasks: api.getTasks,
+        notes: api.getNotes,
+        invoices: api.getInvoices,
+      };
+      if (fnMap[prefetchKey]) {
+        queryClient.prefetchQuery({
+          queryKey: [prefetchKey],
+          queryFn: fnMap[prefetchKey],
+        });
+      }
     }
   };
 
