@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      apis_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          id_proyecto: string
+          key: string
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          id_proyecto: string
+          key: string
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          id_proyecto?: string
+          key?: string
+          nombre?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "apis_tokens_id_proyecto_fkey"
+            columns: ["id_proyecto"]
+            isOneToOne: false
+            referencedRelation: "proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contratos_proyecto: {
         Row: {
           abono_mensual: number
