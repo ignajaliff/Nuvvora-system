@@ -796,7 +796,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
         .eq('id_proyecto', projectId)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data as any[];
+      return data;
     },
   });
 
