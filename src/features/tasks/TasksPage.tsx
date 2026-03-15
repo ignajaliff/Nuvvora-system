@@ -332,12 +332,30 @@ const TasksPage = () => {
         </div>
       </div>
 
+      {showFilter && (
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          {ALL_STATUSES.map(status => (
+            <button
+              key={status}
+              onClick={() => toggleStatus(status)}
+              className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-medium transition-all duration-150 border ${
+                visibleStatuses.includes(status)
+                  ? 'bg-primary/10 border-primary/30 text-primary'
+                  : 'bg-foreground/[0.03] border-foreground/10 text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {STATUS_FILTER_LABELS[status]}
+            </button>
+          ))}
+        </div>
+      )}
+
       {isLoading ? (
         <SkeletonTable rows={7} cols={5} />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <motion.div className="space-y-4 sm:space-y-6" initial="hidden" animate="show" variants={stagger}>
-            {STATUS_ORDER.map(status => (
+            {displayStatuses.map(status => (
               <motion.div key={status} variants={fadeUp}>
                 <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
                   <StatusBadge status={status as any} />
