@@ -913,6 +913,12 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
                     </p>
                   </div>
                   <button
+                    onClick={() => { navigator.clipboard.writeText(token.key); toast({ title: 'Copiado al portapapeles' }); }}
+                    className="shrink-0 p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
+                  >
+                    <Copy size={14} />
+                  </button>
+                  <button
                     onClick={() => toggleReveal(token.id)}
                     className="shrink-0 p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
                   >
