@@ -285,10 +285,18 @@ const TasksPage = () => {
     setQuickForm(f => ({ ...f, titulo: result.titulo, descripcion: result.descripcion }));
   };
 
-  const groupedTasks = {
-    in_progress: tasks?.filter(t => t.estado === 'in_progress') ?? [],
-    todo: tasks?.filter(t => t.estado === 'todo') ?? [],
-    done: tasks?.filter(t => t.estado === 'done') ?? [],
+  const displayStatuses = visibleStatuses.filter(s => ALL_STATUSES.includes(s as any));
+  const groupedTasks: Record<string, any[]> = {};
+  for (const s of displayStatuses) {
+    groupedTasks[s] = tasks?.filter(t => t.estado === s) ?? [];
+  }
+
+  const toggleStatus = (status: string) => {
+    setVisibleStatuses(prev =>
+      prev.includes(status)
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
   };
 
   return (
