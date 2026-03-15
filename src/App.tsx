@@ -25,6 +25,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       staleTime: 1000 * 60 * 5,
       gcTime: 1000 * 60 * 30,
+      retry: 2,
     },
   },
 });
@@ -38,10 +39,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppRoutes = () => {
   const location = useLocation();
-  const { session, loading } = useAuth();
+  const { session, loading, isReady } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
-  if (loading) return null;
+  // Wait for auth to be fully ready before showing anything
+  if (loading || !isReady) return null;
 
   // Show splash only once when authenticated
   if (session && !splashDone) {
@@ -84,13 +86,13 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
-      <PrefetchProvider>
-        <BrowserRouter>
-          <AuthProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <PrefetchProvider>
             <AppRoutes />
-          </AuthProvider>
-        </BrowserRouter>
-      </PrefetchProvider>
+          </PrefetchProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
