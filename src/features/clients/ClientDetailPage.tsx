@@ -169,7 +169,7 @@ const ClientDetailPage = () => {
         {activeTab === 'general' && <GeneralTab client={client} />}
         {activeTab === 'tareas' && <TareasTab projectId={client.id} />}
         {activeTab === 'payments' && <PaymentsContractTab projectId={client.id} />}
-        {activeTab === 'api' && <ApiVaultTab />}
+        {activeTab === 'api' && <ApiVaultTab projectId={client.id} />}
       </div>
     </motion.div>
   );
