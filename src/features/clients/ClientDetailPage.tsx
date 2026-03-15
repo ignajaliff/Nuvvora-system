@@ -787,7 +787,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
   const [form, setForm] = useState({ nombre: '', key: '' });
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
-  const { data: tokens, isLoading } = useQuery({
+  const { data: tokens, isLoading, error: queryError } = useQuery({
     queryKey: ['apis_tokens', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
