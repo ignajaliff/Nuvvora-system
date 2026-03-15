@@ -705,17 +705,230 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
 
 
 /* ── API Vault Tab ── */
-function ApiVaultTab() {
+function ApiVaultTab({ projectId }: { projectId: string }) {
+  const queryClient = useQueryClient();
+  const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
+  const [showForm, setShowForm] = useState(false);
+  const [editingToken, setEditingToken] = useState<any>(null);
+  const [form, setForm] = useState({ nombre: '', key: '' });
+  const [menuOpen, setMenuOpen] = useState<string | null>(null);
+
+  const { data: tokens, isLoading } = useQuery({
+    queryKey: ['apis_tokens', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('apis_tokens' as any)
+        .select('*')
+        .eq('id_proyecto', projectId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (payload: { nombre: string; key: string }) => {
+      const { error } = await supabase.from('apis_tokens' as any).insert({
+        id_proyecto: projectId,
+        nombre: payload.nombre,
+        key: payload.key,
+      } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apis_tokens', projectId] });
+      toast({ title: 'API key guardada' });
+      setShowForm(false);
+      setForm({ nombre: '', key: '' });
+    },
+    onError: () => toast({ title: 'Error al guardar', variant: 'destructive' }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, nombre, key }: { id: string; nombre: string; key: string }) => {
+      const { error } = await supabase.from('apis_tokens' as any).update({ nombre, key } as any).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apis_tokens', projectId] });
+      toast({ title: 'API key actualizada' });
+      setEditingToken(null);
+      setForm({ nombre: '', key: '' });
+    },
+    onError: () => toast({ title: 'Error al actualizar', variant: 'destructive' }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('apis_tokens' as any).delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['apis_tokens', projectId] });
+      toast({ title: 'API key eliminada' });
+    },
+    onError: () => toast({ title: 'Error al eliminar', variant: 'destructive' }),
+  });
+
+  const toggleReveal = (id: string) => {
+    setRevealedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const startEdit = (token: any) => {
+    setEditingToken(token);
+    setForm({ nombre: token.nombre, key: token.key });
+    setMenuOpen(null);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.nombre || !form.key) return;
+    if (editingToken) {
+      updateMutation.mutate({ id: editingToken.id, ...form });
+    } else {
+      createMutation.mutate(form);
+    }
+  };
+
+  const cancelForm = () => {
+    setShowForm(false);
+    setEditingToken(null);
+    setForm({ nombre: '', key: '' });
+  };
+
+  if (isLoading) return <SkeletonCard />;
+
   return (
-    <div className="glass-card p-4 sm:p-6">
-      <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
-        <KeyRound size={14} className="text-muted-foreground" />
-        API Vault
-      </h2>
-      <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
-        <p className="text-muted-foreground text-xs sm:text-sm">No hay claves API configuradas.</p>
-        <p className="text-muted-foreground text-[10px] sm:text-xs mt-1">Las claves API se gestionarán aquí.</p>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+          <KeyRound size={14} className="text-muted-foreground" />
+          API Vault
+        </h2>
+        {!showForm && !editingToken && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] sm:text-xs font-medium hover:opacity-90 transition-opacity flex items-center gap-1"
+          >
+            <Plus size={12} />
+            Agregar
+          </button>
+        )}
       </div>
+
+      {/* Form */}
+      {(showForm || editingToken) && (
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-4 sm:p-5">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <h3 className="text-xs sm:text-sm font-semibold text-foreground">{editingToken ? 'Editar API key' : 'Nueva API key'}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Nombre</label>
+                <input
+                  value={form.nombre}
+                  onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+                  placeholder="Ej: OpenAI API Key"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Key</label>
+                <input
+                  value={form.key}
+                  onChange={e => setForm(f => ({ ...f, key: e.target.value }))}
+                  placeholder="sk-..."
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground font-mono"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={cancelForm} className="px-3 py-1.5 rounded-lg border border-border text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
+              <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="px-3 sm:px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+                {(createMutation.isPending || updateMutation.isPending) ? 'Guardando...' : 'Guardar'}
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      )}
+
+      {/* Token cards */}
+      {(!tokens || tokens.length === 0) && !showForm && !editingToken ? (
+        <div className="glass-card p-4 sm:p-6">
+          <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+            <KeyRound size={20} className="text-muted-foreground mb-2 sm:mb-3" />
+            <p className="text-muted-foreground text-xs sm:text-sm">No hay claves API configuradas.</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs mt-1">Agrega tus API keys y tokens aquí.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {tokens?.map(token => {
+            const isRevealed = revealedIds.has(token.id);
+            return (
+              <div key={token.id} className="glass-card p-4 sm:p-5 space-y-3 relative group">
+                {/* Menu button */}
+                <div className="absolute top-3 right-3">
+                  <button
+                    onClick={() => setMenuOpen(menuOpen === token.id ? null : token.id)}
+                    className="p-1 rounded-md text-muted-foreground/50 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
+                  >
+                    <MoreVertical size={14} />
+                  </button>
+                  {menuOpen === token.id && (
+                    <div className="absolute right-0 top-7 z-10 bg-background border border-border rounded-lg shadow-lg py-1 min-w-[120px]">
+                      <button
+                        onClick={() => startEdit(token)}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-foreground/5 transition-colors"
+                      >
+                        <Pencil size={12} />
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => { deleteMutation.mutate(token.id); setMenuOpen(null); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/5 transition-colors"
+                      >
+                        <Trash2 size={12} />
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Name */}
+                <p className="text-xs sm:text-sm font-semibold text-foreground pr-8">{token.nombre}</p>
+
+                {/* Key with blur */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className={cn(
+                      'text-xs sm:text-sm font-mono text-muted-foreground truncate transition-all duration-200',
+                      !isRevealed && 'blur-sm select-none'
+                    )}>
+                      {token.key}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => toggleReveal(token.id)}
+                    className="shrink-0 p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
+                  >
+                    {isRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+
+                {/* Created date */}
+                <p className="text-[10px] font-mono text-muted-foreground/50">
+                  {new Date(token.created_at).toLocaleDateString('es-ES')}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
