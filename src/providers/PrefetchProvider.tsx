@@ -1,19 +1,28 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/mock-data';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const STALE_TIME = 1000 * 60 * 5; // 5 minutes
 
 export const usePrefetchAll = () => {
   const queryClient = useQueryClient();
+  const { isReady, user } = useAuth();
 
   useEffect(() => {
-    queryClient.prefetchQuery({ queryKey: ['clients'], queryFn: api.getClients, staleTime: STALE_TIME });
-    queryClient.prefetchQuery({ queryKey: ['projects'], queryFn: api.getProjects, staleTime: STALE_TIME });
-    queryClient.prefetchQuery({ queryKey: ['tasks'], queryFn: api.getTasks, staleTime: STALE_TIME });
-    queryClient.prefetchQuery({ queryKey: ['notes'], queryFn: api.getNotes, staleTime: STALE_TIME });
-    queryClient.prefetchQuery({ queryKey: ['invoices'], queryFn: api.getInvoices, staleTime: STALE_TIME });
-  }, [queryClient]);
+    // Only prefetch when auth is ready and user is logged in
+    if (!isReady || !user) return;
+
+    queryClient.prefetchQuery({
+      queryKey: ['proyectos'],
+      queryFn: async () => {
+        const { data, error } = await supabase.from('proyectos').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+      },
+      staleTime: STALE_TIME,
+    });
+  }, [queryClient, isReady, user]);
 };
 
 export const queryConfig = {
