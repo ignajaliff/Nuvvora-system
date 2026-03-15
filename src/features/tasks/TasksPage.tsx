@@ -188,6 +188,8 @@ const TasksPage = () => {
   const [open, setOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const [activeTask, setActiveTask] = useState<any>(null);
+  const [visibleStatuses, setVisibleStatuses] = useState<string[]>([...DEFAULT_VISIBLE]);
+  const [showFilter, setShowFilter] = useState(false);
   const [form, setForm] = useState({
     titulo: '', descripcion: '', id_proyecto: '', entrega_programada: '', estado: 'todo',
   });
