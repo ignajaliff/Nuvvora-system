@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Info, CreditCard, KeyRound, ListTodo, FileText, Plus, X, Eye, EyeOff, MoreVertical, Pencil, Trash2, Copy, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Info, CreditCard, KeyRound, ListTodo, FileText, Plus, X, Eye, EyeOff, MoreVertical, Pencil, Trash2, Copy, ExternalLink, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -251,10 +251,7 @@ function GeneralTab({ client }: { client: any }) {
             <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Stack</p>
             <p className="text-xs sm:text-sm text-foreground font-mono mt-1">{client.stack || '—'}</p>
           </div>
-          <div>
-            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Versión</p>
-            <p className="text-xs sm:text-sm text-foreground font-mono mt-1">v{client.version || '1.0.0'}</p>
-          </div>
+          <VersionField client={client} />
           <div>
             <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Creado</p>
             <p className="text-xs sm:text-sm text-foreground mt-1">
@@ -717,6 +714,67 @@ function PaymentInvoiceForm({ projectId, contrato, feeInicialRestante, onClose }
   );
 }
 
+/* ── Copy button with green flash animation ── */
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    toast({ title: 'Copiado al portapapeles' });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className={cn(
+        'shrink-0 p-1.5 rounded-md transition-all duration-200',
+        copied
+          ? 'text-success bg-success/10 scale-110'
+          : 'text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 scale-100'
+      )}
+    >
+      {copied ? <Check size={14} /> : <Copy size={14} />}
+    </button>
+  );
+}
+
+/* ── Version field with bump button ── */
+function VersionField({ client }: { client: any }) {
+  const queryClient = useQueryClient();
+  const [bumping, setBumping] = useState(false);
+
+  const bumpVersion = async () => {
+    const current = client.version || '1.0.0';
+    const parts = current.split('.').map(Number);
+    parts[2] = (parts[2] || 0) + 1;
+    const next = parts.join('.');
+    setBumping(true);
+    const { error } = await supabase.from('proyectos').update({ version: next } as any).eq('id', client.id);
+    setBumping(false);
+    if (!error) {
+      queryClient.invalidateQueries({ queryKey: ['proyecto', client.id] });
+      queryClient.invalidateQueries({ queryKey: ['proyectos'] });
+      toast({ title: `Versión actualizada a v${next}` });
+    }
+  };
+
+  return (
+    <div>
+      <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Versión</p>
+      <div className="flex items-center gap-2 mt-1">
+        <p className="text-xs sm:text-sm text-foreground font-mono">v{client.version || '1.0.0'}</p>
+        <button
+          onClick={bumpVersion}
+          disabled={bumping}
+          className="p-0.5 rounded-md text-muted-foreground/60 hover:text-primary hover:bg-primary/10 transition-all duration-150 disabled:opacity-50"
+          title="Subir versión"
+        >
+          <Plus size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 
 /* ── API Vault Tab ── */
@@ -927,12 +985,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
                       {token.key}
                     </p>
                   </div>
-                  <button
-                    onClick={() => { navigator.clipboard.writeText(token.key); toast({ title: 'Copiado al portapapeles' }); }}
-                    className="shrink-0 p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
-                  >
-                    <Copy size={14} />
-                  </button>
+                  <CopyButton value={token.key} />
                   <button
                     onClick={() => toggleReveal(token.id)}
                     className="shrink-0 p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
