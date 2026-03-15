@@ -108,34 +108,49 @@ const ClientDetailPage = () => {
             <p className="text-muted-foreground text-[10px] sm:text-xs font-mono mt-1">
               ID: {client.id.slice(0, 8).toUpperCase()}
             </p>
+            {/* Mobile project links */}
+            {((client as any).link1 || (client as any).link2) && (
+              <div className="flex items-center gap-2 mt-2 sm:hidden">
+                {(client as any).link1 && (
+                  <a href={(client as any).link1} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity">
+                    Ver Proyecto
+                  </a>
+                )}
+                {(client as any).link2 && (
+                  <a href={(client as any).link2} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 rounded-lg border border-border text-foreground text-xs font-medium hover:bg-muted transition-colors">
+                    Ver Proyecto (2)
+                  </a>
+                )}
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Project links - stacked on mobile */}
-        {((client as any).link1 || (client as any).link2) && (
-          <div className="flex items-center gap-2 mt-3 sm:mt-0">
-            {(client as any).link1 && (
-              <a
-                href={(client as any).link1}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                Ver Proyecto
-              </a>
-            )}
-            {(client as any).link2 && (
-              <a
-                href={(client as any).link2}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-border text-foreground text-xs sm:text-sm font-medium hover:bg-muted transition-colors"
-              >
-                Ver Proyecto (2)
-              </a>
-            )}
-          </div>
-        )}
+          {/* Desktop project links - right side */}
+          {((client as any).link1 || (client as any).link2) && (
+            <div className="hidden sm:flex items-center gap-2 shrink-0 self-center">
+              {(client as any).link1 && (
+                <a
+                  href={(client as any).link1}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  Ver Proyecto
+                </a>
+              )}
+              {(client as any).link2 && (
+                <a
+                  href={(client as any).link2}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  Ver Proyecto (2)
+                </a>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Tabs - scrollable on mobile */}
         <div className="flex items-center gap-0.5 sm:gap-1 mt-4 sm:mt-6 border-t border-border/50 pt-3 sm:pt-4 overflow-x-auto scrollbar-hide">
