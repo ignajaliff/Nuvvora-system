@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/mock-data';
+import { supabase } from '@/integrations/supabase/client';
 import {
   LayoutDashboard,
   Users,
