@@ -726,11 +726,12 @@ function CopyButton({ value }: { value: string }) {
   return (
     <button
       onClick={handleCopy}
+      style={{ transform: copied ? 'scale(1.25)' : 'scale(1)' }}
       className={cn(
-        'shrink-0 p-1.5 rounded-md transition-all duration-200',
+        'shrink-0 p-1.5 rounded-md transition-all duration-300 ease-out',
         copied
-          ? 'text-success bg-success/10 scale-110'
-          : 'text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 scale-100'
+          ? 'text-success bg-success/15'
+          : 'text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5'
       )}
     >
       {copied ? <Check size={14} /> : <Copy size={14} />}
