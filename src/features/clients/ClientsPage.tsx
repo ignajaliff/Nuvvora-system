@@ -60,7 +60,7 @@ const emptyForm = {
 };
 
 const ClientsPage = () => {
-  const { data: clients, isLoading } = useQuery({ queryKey: ['proyectos'], queryFn: fetchProyectos });
+  const { data: clients, isLoading, error: clientsError } = useQuery({ queryKey: ['proyectos'], queryFn: fetchProyectos, retry: 2 });
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { toast } = useToast();

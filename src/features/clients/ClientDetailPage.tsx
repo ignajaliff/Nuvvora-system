@@ -787,26 +787,26 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
   const [form, setForm] = useState({ nombre: '', key: '' });
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
-  const { data: tokens, isLoading } = useQuery({
+  const { data: tokens, isLoading, error: queryError } = useQuery({
     queryKey: ['apis_tokens', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('apis_tokens' as any)
+        .from('apis_tokens')
         .select('*')
         .eq('id_proyecto', projectId)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data as any[];
+      return data;
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (payload: { nombre: string; key: string }) => {
-      const { error } = await supabase.from('apis_tokens' as any).insert({
+      const { error } = await supabase.from('apis_tokens').insert({
         id_proyecto: projectId,
         nombre: payload.nombre,
         key: payload.key,
-      } as any);
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -820,7 +820,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, nombre, key }: { id: string; nombre: string; key: string }) => {
-      const { error } = await supabase.from('apis_tokens' as any).update({ nombre, key } as any).eq('id', id);
+      const { error } = await supabase.from('apis_tokens').update({ nombre, key }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -834,7 +834,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('apis_tokens' as any).delete().eq('id', id);
+      const { error } = await supabase.from('apis_tokens').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -876,6 +876,18 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
   };
 
   if (isLoading) return <SkeletonCard />;
+  
+  if (queryError) {
+    return (
+      <div className="glass-card p-4 sm:p-6">
+        <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+          <KeyRound size={20} className="text-destructive mb-2 sm:mb-3" />
+          <p className="text-destructive text-xs sm:text-sm">Error al cargar las API keys.</p>
+          <p className="text-muted-foreground text-[10px] sm:text-xs mt-1">{queryError.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
