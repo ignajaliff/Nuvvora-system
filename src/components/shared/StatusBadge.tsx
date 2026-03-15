@@ -35,6 +35,7 @@ const statusLabels: Record<StatusType, string> = {
   in_progress: 'En progreso',
   completed: 'Completado',
   done: 'Hecho',
+  resuelto_viejo: 'Archivado',
   paused: 'Pausado',
   todo: 'Pendiente',
   draft: 'Borrador',
