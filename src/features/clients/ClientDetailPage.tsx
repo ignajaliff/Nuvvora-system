@@ -251,10 +251,7 @@ function GeneralTab({ client }: { client: any }) {
             <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Stack</p>
             <p className="text-xs sm:text-sm text-foreground font-mono mt-1">{client.stack || '—'}</p>
           </div>
-          <div>
-            <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Versión</p>
-            <p className="text-xs sm:text-sm text-foreground font-mono mt-1">v{client.version || '1.0.0'}</p>
-          </div>
+          <VersionField client={client} />
           <div>
             <p className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Creado</p>
             <p className="text-xs sm:text-sm text-foreground mt-1">
