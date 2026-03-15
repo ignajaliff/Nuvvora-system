@@ -791,7 +791,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
     queryKey: ['apis_tokens', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('apis_tokens' as any)
+        .from('apis_tokens')
         .select('*')
         .eq('id_proyecto', projectId)
         .order('created_at', { ascending: false });
