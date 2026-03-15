@@ -802,11 +802,11 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
 
   const createMutation = useMutation({
     mutationFn: async (payload: { nombre: string; key: string }) => {
-      const { error } = await supabase.from('apis_tokens' as any).insert({
+      const { error } = await supabase.from('apis_tokens').insert({
         id_proyecto: projectId,
         nombre: payload.nombre,
         key: payload.key,
-      } as any);
+      });
       if (error) throw error;
     },
     onSuccess: () => {
