@@ -834,7 +834,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('apis_tokens' as any).delete().eq('id', id);
+      const { error } = await supabase.from('apis_tokens').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
