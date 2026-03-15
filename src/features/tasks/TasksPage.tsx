@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { GripVertical, Zap } from 'lucide-react';
+import { GripVertical, Zap, Filter } from 'lucide-react';
 import { VoiceRecorder } from './components/VoiceRecorder';
 import { useIsMobile } from '@/hooks/use-mobile';
 
