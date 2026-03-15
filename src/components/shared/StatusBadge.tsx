@@ -8,6 +8,7 @@ const statusStyles: Record<StatusType, string> = {
   in_progress: 'bg-primary/10 text-primary',
   completed: 'bg-success/10 text-success',
   done: 'bg-success/10 text-success',
+  resuelto_viejo: 'bg-muted text-muted-foreground/60',
   paused: 'bg-warning/10 text-warning',
   todo: 'bg-muted text-muted-foreground',
   draft: 'bg-muted text-muted-foreground',
