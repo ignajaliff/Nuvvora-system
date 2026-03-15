@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Info, CreditCard, KeyRound, ListTodo, FileText, Plus, X, Eye, EyeOff, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Info, CreditCard, KeyRound, ListTodo, FileText, Plus, X, Eye, EyeOff, MoreVertical, Pencil, Trash2, Copy, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -912,6 +912,12 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
                       {token.key}
                     </p>
                   </div>
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(token.key); toast({ title: 'Copiado al portapapeles' }); }}
+                    className="shrink-0 p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
+                  >
+                    <Copy size={14} />
+                  </button>
                   <button
                     onClick={() => toggleReveal(token.id)}
                     className="shrink-0 p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground hover:bg-foreground/5 transition-colors"
