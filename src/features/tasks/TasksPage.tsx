@@ -165,7 +165,16 @@ const OverlayRow = ({ task }: { task: any }) => (
   </div>
 );
 
+const ALL_STATUSES = ['in_progress', 'todo', 'done', 'resuelto_viejo'] as const;
+const DEFAULT_VISIBLE = ['in_progress', 'todo', 'done'] as const;
 const STATUS_ORDER = ['in_progress', 'todo', 'done'] as const;
+
+const STATUS_FILTER_LABELS: Record<string, string> = {
+  in_progress: 'En progreso',
+  todo: 'Pendiente',
+  done: 'Hecho',
+  resuelto_viejo: 'Archivado',
+};
 
 const getDefaultDeliveryDate = () => {
   const d = new Date();
