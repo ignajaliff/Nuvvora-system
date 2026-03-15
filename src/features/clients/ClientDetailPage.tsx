@@ -876,6 +876,18 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
   };
 
   if (isLoading) return <SkeletonCard />;
+  
+  if (queryError) {
+    return (
+      <div className="glass-card p-4 sm:p-6">
+        <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+          <KeyRound size={20} className="text-destructive mb-2 sm:mb-3" />
+          <p className="text-destructive text-xs sm:text-sm">Error al cargar las API keys.</p>
+          <p className="text-muted-foreground text-[10px] sm:text-xs mt-1">{queryError.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
