@@ -820,7 +820,7 @@ function ApiVaultTab({ projectId }: { projectId: string }) {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, nombre, key }: { id: string; nombre: string; key: string }) => {
-      const { error } = await supabase.from('apis_tokens' as any).update({ nombre, key } as any).eq('id', id);
+      const { error } = await supabase.from('apis_tokens').update({ nombre, key }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
