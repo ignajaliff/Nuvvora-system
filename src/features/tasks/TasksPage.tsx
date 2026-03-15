@@ -308,6 +308,13 @@ const TasksPage = () => {
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
+            onClick={() => setShowFilter(f => !f)}
+            className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-ui font-medium transition-all duration-150 flex items-center gap-1 sm:gap-1.5 border ${showFilter ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-foreground/[0.03] border-foreground/10 text-muted-foreground hover:text-foreground'}`}
+          >
+            <Filter className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span className="hidden sm:inline">Filtrar</span>
+          </button>
+          <button
             onClick={() => setQuickOpen(true)}
             className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-warning text-warning-foreground text-[11px] sm:text-ui font-medium hover:opacity-90 transition-opacity duration-150 flex items-center gap-1 sm:gap-1.5"
           >
