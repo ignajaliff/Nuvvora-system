@@ -32,13 +32,13 @@ export const AppNavbar = () => {
   return (
     <>
       {/* Mobile: top bar with small logout */}
-      <div className="md:hidden flex items-center justify-end px-4 pt-3 pb-1">
+      <div className="md:hidden flex items-center justify-start px-3 pt-1.5 pb-0">
         <button
           onClick={signOut}
-          className="p-1.5 rounded-full text-muted-foreground/50 hover:text-foreground transition-colors"
+          className="p-1 rounded-full text-muted-foreground/30 hover:text-foreground transition-colors"
           title="Cerrar sesión"
         >
-          <LogOut size={14} strokeWidth={2} />
+          <LogOut size={12} strokeWidth={1.5} />
         </button>
       </div>
 
@@ -91,7 +91,7 @@ export const AppNavbar = () => {
       </header>
 
       {/* Mobile: bottom nav bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border/40 bg-background/80 backdrop-blur-lg px-2 py-2 safe-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border/40 bg-background/80 backdrop-blur-lg px-2 pt-2.5 pb-7">
         {navItems.map(({ to, icon: Icon }) => {
           const isActive = getIsActive(to);
           return (
