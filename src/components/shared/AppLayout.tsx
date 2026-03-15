@@ -9,7 +9,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
       <div className="relative z-10">
         <AppNavbar />
         <main>
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-5 sm:py-8 pb-20 md:pb-8">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-2 sm:py-8 pb-24 md:pb-8">
             {children}
           </div>
         </main>
