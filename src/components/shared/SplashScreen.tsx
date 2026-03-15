@@ -1,14 +1,49 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+
+const prefetchAll = async (queryClient: ReturnType<typeof useQueryClient>) => {
+  await Promise.allSettled([
+    queryClient.prefetchQuery({
+      queryKey: ['proyectos'],
+      queryFn: async () => {
+        const { data, error } = await supabase.from('proyectos').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+      },
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['tareas-dashboard'],
+      queryFn: async () => {
+        const { data, error } = await supabase.from('tareas').select('*, proyectos(nombre_empresa)').order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+      },
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['facturacion-dashboard'],
+      queryFn: async () => {
+        const { data, error } = await supabase.from('facturacion').select('*');
+        if (error) throw error;
+        return data;
+      },
+    }),
+  ]);
+};
 
 export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
   const [phase, setPhase] = useState<'black' | 'gradient' | 'exit'>('black');
+  const queryClient = useQueryClient();
 
   useEffect(() => {
+    // Start prefetching immediately during splash
+    prefetchAll(queryClient);
+
     const t1 = setTimeout(() => setPhase('gradient'), 1400);
     const t2 = setTimeout(() => setPhase('exit'), 2000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+  }, [queryClient]);
 
   return (
     <AnimatePresence onExitComplete={onComplete}>

@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/mock-data';
+import { supabase } from '@/integrations/supabase/client';
 import {
   LayoutDashboard,
   Users,
@@ -31,11 +31,27 @@ export const AppSidebar = () => {
     const isStale = !state || Date.now() - (state.dataUpdatedAt || 0) > 30000;
     if (isStale) {
       const fnMap: Record<string, () => Promise<unknown>> = {
-        clients: api.getClients,
-        projects: api.getProjects,
-        tasks: api.getTasks,
-        notes: api.getNotes,
-        invoices: api.getInvoices,
+        clients: async () => {
+          const { data, error } = await supabase.from('proyectos').select('*').order('created_at', { ascending: false });
+          if (error) throw error;
+          return data;
+        },
+        projects: async () => {
+          const { data, error } = await supabase.from('proyectos').select('*').order('created_at', { ascending: false });
+          if (error) throw error;
+          return data;
+        },
+        tasks: async () => {
+          const { data, error } = await supabase.from('tareas').select('*, proyectos(nombre_empresa)').order('created_at', { ascending: false });
+          if (error) throw error;
+          return data;
+        },
+        notes: async () => Promise.resolve([]),
+        invoices: async () => {
+          const { data, error } = await supabase.from('facturacion').select('*, proyectos(nombre_empresa)').order('fecha_emision', { ascending: false });
+          if (error) throw error;
+          return data;
+        },
       };
       if (fnMap[prefetchKey]) {
         queryClient.prefetchQuery({
