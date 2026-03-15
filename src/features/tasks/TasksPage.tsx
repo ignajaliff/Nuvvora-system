@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { GripVertical, Zap } from 'lucide-react';
+import { GripVertical, Zap, Filter } from 'lucide-react';
 import { VoiceRecorder } from './components/VoiceRecorder';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -165,7 +165,16 @@ const OverlayRow = ({ task }: { task: any }) => (
   </div>
 );
 
+const ALL_STATUSES = ['in_progress', 'todo', 'done', 'resuelto_viejo'] as const;
+const DEFAULT_VISIBLE = ['in_progress', 'todo', 'done'] as const;
 const STATUS_ORDER = ['in_progress', 'todo', 'done'] as const;
+
+const STATUS_FILTER_LABELS: Record<string, string> = {
+  in_progress: 'En progreso',
+  todo: 'Pendiente',
+  done: 'Hecho',
+  resuelto_viejo: 'Archivado',
+};
 
 const getDefaultDeliveryDate = () => {
   const d = new Date();
@@ -179,6 +188,8 @@ const TasksPage = () => {
   const [open, setOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const [activeTask, setActiveTask] = useState<any>(null);
+  const [visibleStatuses, setVisibleStatuses] = useState<string[]>([...DEFAULT_VISIBLE]);
+  const [showFilter, setShowFilter] = useState(false);
   const [form, setForm] = useState({
     titulo: '', descripcion: '', id_proyecto: '', entrega_programada: '', estado: 'todo',
   });
@@ -274,10 +285,18 @@ const TasksPage = () => {
     setQuickForm(f => ({ ...f, titulo: result.titulo, descripcion: result.descripcion }));
   };
 
-  const groupedTasks = {
-    in_progress: tasks?.filter(t => t.estado === 'in_progress') ?? [],
-    todo: tasks?.filter(t => t.estado === 'todo') ?? [],
-    done: tasks?.filter(t => t.estado === 'done') ?? [],
+  const displayStatuses = visibleStatuses.filter(s => ALL_STATUSES.includes(s as any));
+  const groupedTasks: Record<string, any[]> = {};
+  for (const s of displayStatuses) {
+    groupedTasks[s] = tasks?.filter(t => t.estado === s) ?? [];
+  }
+
+  const toggleStatus = (status: string) => {
+    setVisibleStatuses(prev =>
+      prev.includes(status)
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
   };
 
   return (
@@ -288,6 +307,13 @@ const TasksPage = () => {
           <p className="text-muted-foreground text-[11px] sm:text-ui mt-0.5 sm:mt-1 hidden sm:block">Organiza y gestiona tu trabajo — arrastra tareas entre estados</p>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
+          <button
+            onClick={() => setShowFilter(f => !f)}
+            className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-ui font-medium transition-all duration-150 flex items-center gap-1 sm:gap-1.5 border ${showFilter ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-foreground/[0.03] border-foreground/10 text-muted-foreground hover:text-foreground'}`}
+          >
+            <Filter className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span className="hidden sm:inline">Filtrar</span>
+          </button>
           <button
             onClick={() => setQuickOpen(true)}
             className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-warning text-warning-foreground text-[11px] sm:text-ui font-medium hover:opacity-90 transition-opacity duration-150 flex items-center gap-1 sm:gap-1.5"
@@ -306,12 +332,30 @@ const TasksPage = () => {
         </div>
       </div>
 
+      {showFilter && (
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          {ALL_STATUSES.map(status => (
+            <button
+              key={status}
+              onClick={() => toggleStatus(status)}
+              className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-medium transition-all duration-150 border ${
+                visibleStatuses.includes(status)
+                  ? 'bg-primary/10 border-primary/30 text-primary'
+                  : 'bg-foreground/[0.03] border-foreground/10 text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {STATUS_FILTER_LABELS[status]}
+            </button>
+          ))}
+        </div>
+      )}
+
       {isLoading ? (
         <SkeletonTable rows={7} cols={5} />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <motion.div className="space-y-4 sm:space-y-6" initial="hidden" animate="show" variants={stagger}>
-            {STATUS_ORDER.map(status => (
+            {displayStatuses.map(status => (
               <motion.div key={status} variants={fadeUp}>
                 <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
                   <StatusBadge status={status as any} />

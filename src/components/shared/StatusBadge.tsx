@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high' | 'development' | 'maintenance' | 'staging' | 'pendiente' | 'pagado' | 'vencido' | 'propuesta' | 'activo' | 'suspendido';
+type StatusType = 'active' | 'inactive' | 'in_progress' | 'completed' | 'paused' | 'todo' | 'done' | 'resuelto_viejo' | 'draft' | 'sent' | 'paid' | 'overdue' | 'low' | 'medium' | 'high' | 'development' | 'maintenance' | 'staging' | 'pendiente' | 'pagado' | 'vencido' | 'propuesta' | 'activo' | 'suspendido';
 
 const statusStyles: Record<StatusType, string> = {
   active: 'bg-success/10 text-success',
@@ -8,6 +8,7 @@ const statusStyles: Record<StatusType, string> = {
   in_progress: 'bg-primary/10 text-primary',
   completed: 'bg-success/10 text-success',
   done: 'bg-success/10 text-success',
+  resuelto_viejo: 'bg-muted text-muted-foreground/60',
   paused: 'bg-warning/10 text-warning',
   todo: 'bg-muted text-muted-foreground',
   draft: 'bg-muted text-muted-foreground',
@@ -34,6 +35,7 @@ const statusLabels: Record<StatusType, string> = {
   in_progress: 'En progreso',
   completed: 'Completado',
   done: 'Hecho',
+  resuelto_viejo: 'Archivado',
   paused: 'Pausado',
   todo: 'Pendiente',
   draft: 'Borrador',
