@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -411,7 +412,12 @@ const TasksPage = () => {
               </motion.div>
             ))}
           </motion.div>
-          <DragOverlay dropAnimation={null} zIndex={50}>{activeTask ? <OverlayRow task={activeTask} /> : null}</DragOverlay>
+          {typeof document !== 'undefined' ? createPortal(
+            <DragOverlay dropAnimation={null} zIndex={50}>
+              {activeTask ? <OverlayRow task={activeTask} /> : null}
+            </DragOverlay>,
+            document.body,
+          ) : null}
         </DndContext>
       )}
 

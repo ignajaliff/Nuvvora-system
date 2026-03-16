@@ -25,6 +25,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
+const statusTriggerStyles: Record<string, string> = {
+  todo: 'bg-foreground text-background border-foreground hover:bg-foreground/90',
+  in_progress: 'bg-warning/10 text-warning border-warning/30 hover:bg-warning/15',
+  done: 'bg-success/10 text-success border-success/30 hover:bg-success/15',
+};
+
 const TaskDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -96,7 +102,6 @@ const TaskDetailPage = () => {
       </div>
 
       <motion.div initial="hidden" animate="show" variants={fadeUp} className="space-y-6">
-        {/* Header card */}
         <div className="glass-card p-6 relative z-10">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
@@ -117,7 +122,7 @@ const TaskDetailPage = () => {
               </div>
             </div>
             <Select value={task.estado} onValueChange={v => updateEstado.mutate(v)}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className={`w-[160px] ${statusTriggerStyles[task.estado] ?? ''}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -129,7 +134,6 @@ const TaskDetailPage = () => {
           </div>
         </div>
 
-        {/* Description */}
         <div className="glass-card p-6 relative z-10">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-4 h-4 text-muted-foreground" />
