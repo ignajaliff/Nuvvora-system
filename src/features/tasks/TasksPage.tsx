@@ -96,22 +96,34 @@ const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void })
   });
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.35 : 1,
+    zIndex: isDragging ? 10 : undefined,
   };
+
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer" onClick={onClick}>
-      <td className="py-3 px-2 w-8">
-        <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-1">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="grid grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_auto_auto] items-center border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer"
+      onClick={onClick}
+    >
+      <div className="py-3 px-2">
+        <button
+          {...listeners}
+          {...attributes}
+          onClick={e => e.stopPropagation()}
+          className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-1 touch-none"
+        >
           <GripVertical className="w-4 h-4" />
         </button>
-      </td>
-      <td className="py-3 px-4 text-ui text-foreground">{task.titulo}</td>
-      <td className="py-3 px-4 text-ui text-muted-foreground">{(task.proyectos as any)?.nombre_empresa ?? '—'}</td>
-      <td className="py-3 px-4"><StatusBadge status={task.estado as any} /></td>
-      <td className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground">
+      </div>
+      <div className="py-3 px-4 text-ui text-foreground truncate">{task.titulo}</div>
+      <div className="py-3 px-4 text-ui text-muted-foreground truncate">{(task.proyectos as any)?.nombre_empresa ?? '—'}</div>
+      <div className="py-3 px-4"><StatusBadge status={task.estado as any} /></div>
+      <div className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground whitespace-nowrap">
         {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES') : '—'}
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 };
 
@@ -123,11 +135,12 @@ const MobileTaskCard = ({ task, onClick }: { task: any; onClick: () => void }) =
   });
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.35 : 1,
+    zIndex: isDragging ? 10 : undefined,
   };
   return (
     <div ref={setNodeRef} style={style} className="p-3 border-b border-foreground/5 last:border-0 flex items-start gap-2" onClick={onClick}>
-      <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-0.5 mt-0.5 shrink-0">
+      <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-0.5 mt-0.5 shrink-0 touch-none">
         <GripVertical className="w-3.5 h-3.5" />
       </button>
       <div className="flex-1 min-w-0 space-y-1">
@@ -357,39 +370,31 @@ const TasksPage = () => {
           <motion.div className="space-y-4 sm:space-y-6" initial="hidden" animate="show" variants={stagger}>
             {displayStatuses.map(status => (
               <motion.div key={status} variants={fadeUp}>
-                <div className={`flex items-center gap-2 mb-1.5 sm:mb-2 px-3 py-1.5 rounded-lg ${
-                  status === 'todo' ? 'bg-foreground text-background' :
-                  status === 'in_progress' ? 'bg-warning text-warning-foreground' :
-                  ''
-                }`}>
+                <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
                   {status === 'todo' ? (
-                    <span className="text-[11px] sm:text-xs font-semibold">Pendientes</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-foreground text-background">
+                      Pendiente
+                    </span>
                   ) : status === 'in_progress' ? (
-                    <span className="text-[11px] sm:text-xs font-semibold">En progreso</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-warning/10 text-warning">
+                      En progreso
+                    </span>
                   ) : (
                     <StatusBadge status={status as any} />
                   )}
-                  <span className={`text-[10px] sm:text-[11px] font-mono-tabular ${
-                    status === 'todo' ? 'text-background/60' :
-                    status === 'in_progress' ? 'text-warning-foreground/60' :
-                    'text-muted-foreground'
-                  }`}>{groupedTasks[status].length}</span>
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-mono-tabular">{groupedTasks[status].length}</span>
                 </div>
                 <DroppableColumn status={status}>
                   <div className="glass-card overflow-hidden">
-                    {/* Desktop table */}
+                    {/* Desktop list */}
                     <div className="relative z-10 hidden sm:block">
-                      <table className="w-full">
-                        <tbody>
-                          {groupedTasks[status].length === 0 ? (
-                            <tr><td className="py-6 px-4 text-center text-sm text-muted-foreground" colSpan={5}>Sin tareas — arrastra una aquí</td></tr>
-                          ) : (
-                            groupedTasks[status].map(task => (
-                              <DraggableTaskRow key={task.id} task={task} onClick={() => navigate(`/tasks/${task.id}`)} />
-                            ))
-                          )}
-                        </tbody>
-                      </table>
+                      {groupedTasks[status].length === 0 ? (
+                        <div className="py-6 px-4 text-center text-sm text-muted-foreground">Sin tareas — arrastra una aquí</div>
+                      ) : (
+                        groupedTasks[status].map(task => (
+                          <DraggableTaskRow key={task.id} task={task} onClick={() => navigate(`/tasks/${task.id}`)} />
+                        ))
+                      )}
                     </div>
                     {/* Mobile card list */}
                     <div className="sm:hidden">
@@ -406,7 +411,7 @@ const TasksPage = () => {
               </motion.div>
             ))}
           </motion.div>
-          <DragOverlay>{activeTask ? <OverlayRow task={activeTask} /> : null}</DragOverlay>
+          <DragOverlay dropAnimation={null} zIndex={50}>{activeTask ? <OverlayRow task={activeTask} /> : null}</DragOverlay>
         </DndContext>
       )}
 
