@@ -411,7 +411,7 @@ const TasksPage = () => {
               </motion.div>
             ))}
           </motion.div>
-          <DragOverlay>{activeTask ? <OverlayRow task={activeTask} /> : null}</DragOverlay>
+          <DragOverlay dropAnimation={null} zIndex={50}>{activeTask ? <OverlayRow task={activeTask} /> : null}</DragOverlay>
         </DndContext>
       )}
 
