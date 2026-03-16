@@ -96,22 +96,34 @@ const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void })
   });
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.35 : 1,
+    zIndex: isDragging ? 10 : undefined,
   };
+
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer" onClick={onClick}>
-      <td className="py-3 px-2 w-8">
-        <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-1">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="grid grid-cols-[40px_minmax(0,1.5fr)_minmax(0,1fr)_auto_auto] items-center border-b border-foreground/5 last:border-0 hover:bg-foreground/[0.02] transition-colors duration-150 cursor-pointer"
+      onClick={onClick}
+    >
+      <div className="py-3 px-2">
+        <button
+          {...listeners}
+          {...attributes}
+          onClick={e => e.stopPropagation()}
+          className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-1 touch-none"
+        >
           <GripVertical className="w-4 h-4" />
         </button>
-      </td>
-      <td className="py-3 px-4 text-ui text-foreground">{task.titulo}</td>
-      <td className="py-3 px-4 text-ui text-muted-foreground">{(task.proyectos as any)?.nombre_empresa ?? '—'}</td>
-      <td className="py-3 px-4"><StatusBadge status={task.estado as any} /></td>
-      <td className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground">
+      </div>
+      <div className="py-3 px-4 text-ui text-foreground truncate">{task.titulo}</div>
+      <div className="py-3 px-4 text-ui text-muted-foreground truncate">{(task.proyectos as any)?.nombre_empresa ?? '—'}</div>
+      <div className="py-3 px-4"><StatusBadge status={task.estado as any} /></div>
+      <div className="py-3 px-4 font-mono-tabular text-[12px] text-muted-foreground whitespace-nowrap">
         {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES') : '—'}
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 };
 
