@@ -412,7 +412,12 @@ const TasksPage = () => {
               </motion.div>
             ))}
           </motion.div>
-          <DragOverlay dropAnimation={null} zIndex={50}>{activeTask ? <OverlayRow task={activeTask} /> : null}</DragOverlay>
+          {typeof document !== 'undefined' ? createPortal(
+            <DragOverlay dropAnimation={null} zIndex={50}>
+              {activeTask ? <OverlayRow task={activeTask} /> : null}
+            </DragOverlay>,
+            document.body,
+          ) : null}
         </DndContext>
       )}
 
