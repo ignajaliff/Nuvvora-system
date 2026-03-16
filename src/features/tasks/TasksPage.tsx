@@ -135,11 +135,12 @@ const MobileTaskCard = ({ task, onClick }: { task: any; onClick: () => void }) =
   });
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.35 : 1,
+    zIndex: isDragging ? 10 : undefined,
   };
   return (
     <div ref={setNodeRef} style={style} className="p-3 border-b border-foreground/5 last:border-0 flex items-start gap-2" onClick={onClick}>
-      <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-0.5 mt-0.5 shrink-0">
+      <button {...listeners} {...attributes} onClick={e => e.stopPropagation()} className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing p-0.5 mt-0.5 shrink-0 touch-none">
         <GripVertical className="w-3.5 h-3.5" />
       </button>
       <div className="flex-1 min-w-0 space-y-1">
