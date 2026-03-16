@@ -370,39 +370,31 @@ const TasksPage = () => {
           <motion.div className="space-y-4 sm:space-y-6" initial="hidden" animate="show" variants={stagger}>
             {displayStatuses.map(status => (
               <motion.div key={status} variants={fadeUp}>
-                <div className={`flex items-center gap-2 mb-1.5 sm:mb-2 px-3 py-1.5 rounded-lg ${
-                  status === 'todo' ? 'bg-foreground text-background' :
-                  status === 'in_progress' ? 'bg-warning text-warning-foreground' :
-                  ''
-                }`}>
+                <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
                   {status === 'todo' ? (
-                    <span className="text-[11px] sm:text-xs font-semibold">Pendientes</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-foreground text-background">
+                      Pendiente
+                    </span>
                   ) : status === 'in_progress' ? (
-                    <span className="text-[11px] sm:text-xs font-semibold">En progreso</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-warning/10 text-warning">
+                      En progreso
+                    </span>
                   ) : (
                     <StatusBadge status={status as any} />
                   )}
-                  <span className={`text-[10px] sm:text-[11px] font-mono-tabular ${
-                    status === 'todo' ? 'text-background/60' :
-                    status === 'in_progress' ? 'text-warning-foreground/60' :
-                    'text-muted-foreground'
-                  }`}>{groupedTasks[status].length}</span>
+                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-mono-tabular">{groupedTasks[status].length}</span>
                 </div>
                 <DroppableColumn status={status}>
                   <div className="glass-card overflow-hidden">
-                    {/* Desktop table */}
+                    {/* Desktop list */}
                     <div className="relative z-10 hidden sm:block">
-                      <table className="w-full">
-                        <tbody>
-                          {groupedTasks[status].length === 0 ? (
-                            <tr><td className="py-6 px-4 text-center text-sm text-muted-foreground" colSpan={5}>Sin tareas — arrastra una aquí</td></tr>
-                          ) : (
-                            groupedTasks[status].map(task => (
-                              <DraggableTaskRow key={task.id} task={task} onClick={() => navigate(`/tasks/${task.id}`)} />
-                            ))
-                          )}
-                        </tbody>
-                      </table>
+                      {groupedTasks[status].length === 0 ? (
+                        <div className="py-6 px-4 text-center text-sm text-muted-foreground">Sin tareas — arrastra una aquí</div>
+                      ) : (
+                        groupedTasks[status].map(task => (
+                          <DraggableTaskRow key={task.id} task={task} onClick={() => navigate(`/tasks/${task.id}`)} />
+                        ))
+                      )}
                     </div>
                     {/* Mobile card list */}
                     <div className="sm:hidden">
