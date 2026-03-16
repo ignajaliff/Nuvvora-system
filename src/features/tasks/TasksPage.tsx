@@ -414,7 +414,7 @@ const TasksPage = () => {
             ))}
           </motion.div>
           {typeof document !== 'undefined' ? createPortal(
-            <DragOverlay dropAnimation={null} zIndex={50}>
+            <DragOverlay dropAnimation={null} zIndex={50} modifiers={[snapCenterToCursor]}>
               {activeTask ? <OverlayRow task={activeTask} /> : null}
             </DragOverlay>,
             document.body,
