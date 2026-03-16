@@ -158,16 +158,16 @@ const DroppableColumn = ({ status, children }: { status: string; children: React
 
 /* ── Overlay row ── */
 const OverlayRow = ({ task }: { task: any }) => (
-  <div className="glass-card p-3 rounded-lg shadow-lg flex items-center gap-3 relative z-10">
+  <div className="p-3 rounded-lg shadow-lg flex items-center gap-3 bg-background border border-border max-w-xs">
     <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-    <span className="text-ui text-foreground">{task.titulo}</span>
+    <span className="text-ui text-foreground truncate">{task.titulo}</span>
     <StatusBadge status={task.estado as any} />
   </div>
 );
 
-const ALL_STATUSES = ['in_progress', 'todo', 'done', 'resuelto_viejo'] as const;
-const DEFAULT_VISIBLE = ['in_progress', 'todo', 'done'] as const;
-const STATUS_ORDER = ['in_progress', 'todo', 'done'] as const;
+const ALL_STATUSES = ['todo', 'in_progress', 'done', 'resuelto_viejo'] as const;
+const DEFAULT_VISIBLE = ['todo', 'in_progress', 'done'] as const;
+const STATUS_ORDER = ['todo', 'in_progress', 'done'] as const;
 
 const STATUS_FILTER_LABELS: Record<string, string> = {
   in_progress: 'En progreso',
