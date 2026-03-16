@@ -96,8 +96,8 @@ const DraggableTaskRow = ({ task, onClick }: { task: any; onClick: () => void })
     data: { task },
   });
   const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    opacity: isDragging ? 0.35 : 1,
+    transform: !isDragging && transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    opacity: isDragging ? 0.15 : 1,
     zIndex: isDragging ? 10 : undefined,
   };
 
