@@ -1,11 +1,11 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { fadeUp } from '@/lib/animations';
-import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SkeletonTable } from '@/components/shared/Skeleton';
-import { ArrowLeft, Calendar, FolderOpen, FileText } from 'lucide-react';
+import { ArrowLeft, Calendar, FolderOpen, FileText, Trash2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -13,12 +13,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 const TaskDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data: task, isLoading } = useQuery({
     queryKey: ['tarea', id],
@@ -47,6 +58,19 @@ const TaskDetailPage = () => {
     onError: () => toast.error('Error al actualizar'),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('tareas').delete().eq('id', id!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tareas'] });
+      toast.success('Tarea eliminada');
+      navigate('/tasks');
+    },
+    onError: () => toast.error('Error al eliminar la tarea'),
+  });
+
   if (isLoading) return <SkeletonTable rows={4} cols={2} />;
   if (!task) return <p className="text-muted-foreground p-8">Tarea no encontrada</p>;
 
@@ -54,13 +78,22 @@ const TaskDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => navigate('/tasks')}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Volver a tareas
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate('/tasks')}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver a tareas
+        </button>
+        <button
+          onClick={() => setShowDeleteDialog(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Eliminar
+        </button>
+      </div>
 
       <motion.div initial="hidden" animate="show" variants={fadeUp} className="space-y-6">
         {/* Header card */}
@@ -68,7 +101,7 @@ const TaskDetailPage = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">{task.titulo}</h1>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <FolderOpen className="w-3.5 h-3.5" />
                   {proyecto?.nombre_empresa ?? '—'}
@@ -76,6 +109,10 @@ const TaskDetailPage = () => {
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
                   Registrada {new Date(task.fecha_registro).toLocaleDateString('es-ES')}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Entrega: {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Sin fecha'}
                 </span>
               </div>
             </div>
@@ -92,24 +129,6 @@ const TaskDetailPage = () => {
           </div>
         </div>
 
-        {/* Info cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="glass-card p-4 relative z-10">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Estado</p>
-            <StatusBadge status={task.estado as any} />
-          </div>
-          <div className="glass-card p-4 relative z-10">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Entrega programada</p>
-            <p className="text-sm font-medium text-foreground font-mono-tabular">
-              {task.entrega_programada ? new Date(task.entrega_programada).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Sin fecha'}
-            </p>
-          </div>
-          <div className="glass-card p-4 relative z-10">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Proyecto</p>
-            <p className="text-sm font-medium text-foreground">{proyecto?.nombre_empresa ?? '—'}</p>
-          </div>
-        </div>
-
         {/* Description */}
         <div className="glass-card p-6 relative z-10">
           <div className="flex items-center gap-2 mb-4">
@@ -123,6 +142,26 @@ const TaskDetailPage = () => {
           </div>
         </div>
       </motion.div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar esta tarea?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. La tarea "{task.titulo}" será eliminada permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteMutation.mutate()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

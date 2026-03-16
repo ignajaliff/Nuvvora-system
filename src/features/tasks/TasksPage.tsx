@@ -158,16 +158,16 @@ const DroppableColumn = ({ status, children }: { status: string; children: React
 
 /* ── Overlay row ── */
 const OverlayRow = ({ task }: { task: any }) => (
-  <div className="glass-card p-3 rounded-lg shadow-lg flex items-center gap-3 relative z-10">
+  <div className="p-3 rounded-lg shadow-lg flex items-center gap-3 bg-background border border-border max-w-xs">
     <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-    <span className="text-ui text-foreground">{task.titulo}</span>
+    <span className="text-ui text-foreground truncate">{task.titulo}</span>
     <StatusBadge status={task.estado as any} />
   </div>
 );
 
-const ALL_STATUSES = ['in_progress', 'todo', 'done', 'resuelto_viejo'] as const;
-const DEFAULT_VISIBLE = ['in_progress', 'todo', 'done'] as const;
-const STATUS_ORDER = ['in_progress', 'todo', 'done'] as const;
+const ALL_STATUSES = ['todo', 'in_progress', 'done', 'resuelto_viejo'] as const;
+const DEFAULT_VISIBLE = ['todo', 'in_progress', 'done'] as const;
+const STATUS_ORDER = ['todo', 'in_progress', 'done'] as const;
 
 const STATUS_FILTER_LABELS: Record<string, string> = {
   in_progress: 'En progreso',
@@ -357,9 +357,23 @@ const TasksPage = () => {
           <motion.div className="space-y-4 sm:space-y-6" initial="hidden" animate="show" variants={stagger}>
             {displayStatuses.map(status => (
               <motion.div key={status} variants={fadeUp}>
-                <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-                  <StatusBadge status={status as any} />
-                  <span className="text-[10px] sm:text-[11px] text-muted-foreground font-mono-tabular">{groupedTasks[status].length}</span>
+                <div className={`flex items-center gap-2 mb-1.5 sm:mb-2 px-3 py-1.5 rounded-lg ${
+                  status === 'todo' ? 'bg-foreground text-background' :
+                  status === 'in_progress' ? 'bg-warning text-warning-foreground' :
+                  ''
+                }`}>
+                  {status === 'todo' ? (
+                    <span className="text-[11px] sm:text-xs font-semibold">Pendientes</span>
+                  ) : status === 'in_progress' ? (
+                    <span className="text-[11px] sm:text-xs font-semibold">En progreso</span>
+                  ) : (
+                    <StatusBadge status={status as any} />
+                  )}
+                  <span className={`text-[10px] sm:text-[11px] font-mono-tabular ${
+                    status === 'todo' ? 'text-background/60' :
+                    status === 'in_progress' ? 'text-warning-foreground/60' :
+                    'text-muted-foreground'
+                  }`}>{groupedTasks[status].length}</span>
                 </div>
                 <DroppableColumn status={status}>
                   <div className="glass-card overflow-hidden">
