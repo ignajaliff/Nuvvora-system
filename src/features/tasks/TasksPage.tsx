@@ -165,7 +165,7 @@ const MobileTaskCard = ({ task, onClick }: { task: any; onClick: () => void }) =
 const DroppableColumn = ({ status, children }: { status: string; children: React.ReactNode }) => {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   return (
-    <div ref={setNodeRef} className={`transition-all duration-200 rounded-xl ${isOver ? 'ring-2 ring-primary/30 bg-primary/[0.02]' : ''}`}>
+    <div ref={setNodeRef} className={`transition-all duration-200 rounded-xl min-h-[60px] ${isOver ? 'ring-2 ring-primary/30 bg-primary/[0.02]' : ''}`}>
       {children}
     </div>
   );
