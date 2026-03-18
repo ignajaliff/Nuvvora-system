@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { fadeUp } from '@/lib/animations';
 import { SkeletonTable } from '@/components/shared/Skeleton';
-import { ArrowLeft, Calendar, FolderOpen, FileText, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, FolderOpen, FileText, Trash2, Check } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -36,6 +36,9 @@ const TaskDetailPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isEditingDesc, setIsEditingDesc] = useState(false);
+  const [descDraft, setDescDraft] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: task, isLoading } = useQuery({
     queryKey: ['tarea', id],
@@ -51,6 +54,17 @@ const TaskDetailPage = () => {
     enabled: !!id,
   });
 
+  useEffect(() => {
+    if (task) setDescDraft(task.descripcion ?? '');
+  }, [task]);
+
+  useEffect(() => {
+    if (isEditingDesc && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.selectionStart = textareaRef.current.value.length;
+    }
+  }, [isEditingDesc]);
+
   const updateEstado = useMutation({
     mutationFn: async (estado: string) => {
       const { error } = await supabase.from('tareas').update({ estado }).eq('id', id!);
@@ -62,6 +76,20 @@ const TaskDetailPage = () => {
       toast.success('Estado actualizado');
     },
     onError: () => toast.error('Error al actualizar'),
+  });
+
+  const updateDesc = useMutation({
+    mutationFn: async (descripcion: string) => {
+      const { error } = await supabase.from('tareas').update({ descripcion }).eq('id', id!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tarea', id] });
+      queryClient.invalidateQueries({ queryKey: ['tareas'] });
+      setIsEditingDesc(false);
+      toast.success('Descripción actualizada');
+    },
+    onError: () => toast.error('Error al actualizar descripción'),
   });
 
   const deleteMutation = useMutation({
@@ -76,6 +104,14 @@ const TaskDetailPage = () => {
     },
     onError: () => toast.error('Error al eliminar la tarea'),
   });
+
+  const handleSaveDesc = () => {
+    if (descDraft !== (task?.descripcion ?? '')) {
+      updateDesc.mutate(descDraft);
+    } else {
+      setIsEditingDesc(false);
+    }
+  };
 
   if (isLoading) return <SkeletonTable rows={4} cols={2} />;
   if (!task) return <p className="text-muted-foreground p-8">Tarea no encontrada</p>;
@@ -135,15 +171,53 @@ const TaskDetailPage = () => {
         </div>
 
         <div className="glass-card p-6 relative z-10">
-          <div className="flex items-center gap-2 mb-4">
-            <FileText className="w-4 h-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold text-foreground">Descripción</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Descripción</h2>
+            </div>
+            {isEditingDesc ? (
+              <button
+                onClick={handleSaveDesc}
+                disabled={updateDesc.isPending}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                <Check className="w-3.5 h-3.5" />
+                {updateDesc.isPending ? 'Guardando...' : 'Guardar'}
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsEditingDesc(true)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Editar
+              </button>
+            )}
           </div>
-          <div className="prose prose-sm max-w-none">
-            <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap text-[15px]">
-              {task.descripcion || 'Sin descripción'}
-            </p>
-          </div>
+          {isEditingDesc ? (
+            <textarea
+              ref={textareaRef}
+              value={descDraft}
+              onChange={e => setDescDraft(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Escape') {
+                  setDescDraft(task.descripcion ?? '');
+                  setIsEditingDesc(false);
+                }
+              }}
+              placeholder="Escribe una descripción..."
+              className="w-full min-h-[120px] bg-transparent border border-border rounded-lg px-4 py-3 text-[15px] text-foreground leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
+            />
+          ) : (
+            <div
+              onClick={() => setIsEditingDesc(true)}
+              className="prose prose-sm max-w-none cursor-pointer rounded-lg hover:bg-muted/30 transition-colors px-4 py-3 -mx-4 -my-3"
+            >
+              <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap text-[15px]">
+                {task.descripcion || 'Haz clic para agregar una descripción...'}
+              </p>
+            </div>
+          )}
         </div>
       </motion.div>
 
