@@ -155,6 +155,30 @@ export type Database = {
         }
         Relationships: []
       }
+      notas: {
+        Row: {
+          contenido: string | null
+          created_at: string
+          id: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          contenido?: string | null
+          created_at?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Update: {
+          contenido?: string | null
+          created_at?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string

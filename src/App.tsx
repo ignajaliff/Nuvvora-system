@@ -15,6 +15,7 @@ import ProjectsPage from "@/features/projects/ProjectsPage";
 import TasksPage from "@/features/tasks/TasksPage";
 import TaskDetailPage from "@/features/tasks/TaskDetailPage";
 import NotesPage from "@/features/notes/NotesPage";
+import NoteDetailPage from "@/features/notes/NoteDetailPage";
 import BillingPage from "@/features/billing/BillingPage";
 import LoginPage from "@/pages/LoginPage";
 import NotFound from "./pages/NotFound";
@@ -70,6 +71,7 @@ const AppRoutes = () => {
                   <Route path="/tasks" element={<TasksPage />} />
                   <Route path="/tasks/:id" element={<TaskDetailPage />} />
                   <Route path="/notes" element={<NotesPage />} />
+                  <Route path="/notes/:id" element={<NoteDetailPage />} />
                   <Route path="/billing" element={<BillingPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
